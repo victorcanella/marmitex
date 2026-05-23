@@ -631,15 +631,15 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="modal-sheet">
       <div class="modal-handle"></div>
       <div class="modal-title" id="cat-modal-title">Nova categoria</div>
-      <div class="modal-sub">Marmita = item composto (cliente escolhe carnes/acomp). Carne / Acompanhamento aparecem só no builder. Avulso = produto único (bebida, sobremesa).</div>
+      <div class="modal-sub">Marmita = itens com preço (cliente monta com proteínas/acomp). Proteína & Acompanhamento = sem preço (selecionados dentro da marmita). Bebidas/Outros = produtos avulsos.</div>
       <label class="inp-label">Nome da categoria</label>
-      <input id="cat-name-inp" class="inp" type="text" placeholder="Ex: Marmitas, Carnes do dia…" style="margin-bottom:14px">
+      <input id="cat-name-inp" class="inp" type="text" placeholder="Ex: Marmitas, Proteínas..." style="margin-bottom:14px">
       <label class="inp-label">Tipo</label>
       <div class="kind-grid">
         <button type="button" class="kind-btn" id="cat-kind-marmita" onclick="catSetKind('marmita')">🍱 Marmita</button>
-        <button type="button" class="kind-btn" id="cat-kind-carne" onclick="catSetKind('carne')">🍖 Carne</button>
+        <button type="button" class="kind-btn" id="cat-kind-carne" onclick="catSetKind('carne')">🍖 Proteína</button>
         <button type="button" class="kind-btn" id="cat-kind-acompanhamento" onclick="catSetKind('acompanhamento')">🍚 Acompanhamento</button>
-        <button type="button" class="kind-btn" id="cat-kind-outro" onclick="catSetKind('outro')">🥤 Avulso</button>
+        <button type="button" class="kind-btn" id="cat-kind-outro" onclick="catSetKind('outro')">🥤 Bebidas / Outros</button>
       </div>
       <div class="modal-footer">
         <button class="btn btn-close-modal" onclick="closeCatModal()">Cancelar</button>
@@ -973,28 +973,25 @@ const DEFAULT_SEED = [
     {name:'Marmita G',subtitle:'2 opções de carne, acompanhamentos à vontade',price:25,numCarnes:2,icon:'🍱'},
     {name:'Marmita Executiva',subtitle:'2 opções de carne, acompanhamentos à vontade',price:30,numCarnes:2,icon:'🍱'},
   ]},
-  { name:'Carnes do dia', kind:'carne', items:[
-    {name:'Frango assado',subtitle:'',icon:'🍗'},
+  { name:'Proteínas', kind:'carne', items:[
+    {name:'Carne cozida com batata',subtitle:'',icon:'🥩'},
+    {name:'Moqueca de tilápia com camarão',subtitle:'',icon:'🐟'},
+    {name:'Filé mignon ao alho',subtitle:'',icon:'🥩'},
+    {name:'Costelinha suína assada',subtitle:'',icon:'🍖'},
     {name:'Carne assada',subtitle:'',icon:'🥩'},
-    {name:'Filé mignon',subtitle:'',icon:'🥩'},
+    {name:'Frango assado',subtitle:'',icon:'🍗'},
   ]},
   { name:'Acompanhamentos', kind:'acompanhamento', items:[
-    {name:'Arroz branco',subtitle:'',icon:'🍚'},
-    {name:'Feijão em calda',subtitle:'',icon:'🫘'},
-    {name:'Feijão tropeiro',subtitle:'',icon:'🫘'},
+    {name:'Feijão tropeiro ou em calda',subtitle:'',icon:'🫘'},
+    {name:'Arroz',subtitle:'',icon:'🍚'},
     {name:'Macarrão',subtitle:'',icon:'🍝'},
-    {name:'Batata frita',subtitle:'',icon:'🍟'},
     {name:'Salada',subtitle:'',icon:'🥗'},
+    {name:'Salada de maionese',subtitle:'',icon:'🥗'},
+    {name:'Purê de aipim',subtitle:'',icon:'🥔'},
   ]},
   { name:'Refrigerantes', kind:'outro', items:[
     {name:'Coca-Cola lata',subtitle:'350ml',price:6,icon:'🥤'},
     {name:'Guaraná lata',subtitle:'350ml',price:5,icon:'🥤'},
-  ]},
-  { name:'Cervejas', kind:'outro', items:[
-    {name:'Heineken long neck',subtitle:'330ml',price:10,icon:'🍺'},
-  ]},
-  { name:'Sorvetes', kind:'outro', items:[
-    {name:'Geladão',subtitle:'',price:5,icon:'🍦'},
   ]},
 ];
 window.DEFAULT_SEED = DEFAULT_SEED;
@@ -2218,7 +2215,7 @@ async function aggregateOrdersToMonth(ym,orders){
 }
 
 // ════ ADMIN: Cardápio ════
-const KIND_LABELS={marmita:'🍱 Marmita',carne:'🍖 Carne',acompanhamento:'🍚 Acompanhamento',outro:'🥤 Avulso'};
+const KIND_LABELS={marmita:'🍱 Marmita',carne:'🍖 Proteína (Carne)',acompanhamento:'🍚 Acompanhamento',outro:'🥤 Bebidas / Outros'};
 const KIND_TAGS={marmita:'marmita',carne:'carne',acompanhamento:'acompanhamento',outro:'outro'};
 
 async function loadCardapioTab(){
@@ -2228,10 +2225,13 @@ async function loadCardapioTab(){
   // Conta carnes/acomp disponíveis pra mostrar como cardápio do dia
   const carnesDisp=loadedItems.filter(i=>{const c=loadedCats.find(c=>c._key===i.catKey);return c&&c.kind==='carne'&&i.available!==false;}).length;
   const acompDisp=loadedItems.filter(i=>{const c=loadedCats.find(c=>c._key===i.catKey);return c&&c.kind==='acompanhamento'&&i.available!==false;}).length;
-  let h=`<div class="tip-box">📅 <strong>Cardápio de hoje:</strong> ${carnesDisp} carne${carnesDisp===1?'':'s'} · ${acompDisp} acompanhamento${acompDisp===1?'':'s'} disponíveis. Use o botão <strong>DISPONÍVEL/ESGOTADO</strong> em cada item pra montar o dia.</div>`;
+  let h=`<div class="tip-box">📅 <strong>Cardápio de hoje:</strong> ${carnesDisp} proteína${carnesDisp===1?'':'s'} · ${acompDisp} acompanhamento${acompDisp===1?'':'s'} disponíveis. Use o botão <strong>DISPONÍVEL/ESGOTADO</strong> em cada item pra montar o dia.</div>`;
+  h+=`<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">`;
   if(carnesDisp>0||acompDisp>0){
-    h+=`<button class="btn-clear-day" onclick="clearDayMenu()">🧹 Esgotar todas as carnes e acompanhamentos (reset do dia)</button>`;
+    h+=`<button class="btn-clear-day" style="margin-bottom:0;flex:1;min-width:180px" onclick="clearDayMenu()">🧹 Esgotar proteínas e acompanhamentos (reset)</button>`;
   }
+  h+=`<button class="btn-clear-day" style="margin-bottom:0;flex:1;min-width:180px;background:#f0f4ff;border-color:#c5d5ff;color:#2255cc" onclick="resetToDefaultSeed()">🍱 Restaurar Cardápio Padrão (Zerar tudo)</button>`;
+  h+=`</div>`;
   h+=`<button class="btn-add-cat" onclick="openCatModal()">＋ Nova categoria</button>`;
   if(!loadedCats.length)h+='<p style="color:#ccc;text-align:center;padding:20px">Nenhuma categoria</p>';
   loadedCats.forEach(c=>{
@@ -2249,7 +2249,7 @@ async function loadCardapioTab(){
       </div>`;
     ci.forEach(i=>{
       let priceLine='';
-      if(kind==='marmita')priceLine=`R$ ${fmt(i.price)} · ${i.numCarnes||1} carne${(i.numCarnes||1)===1?'':'s'}`;
+      if(kind==='marmita')priceLine=`R$ ${fmt(i.price)} · ${i.numCarnes||1} proteína${(i.numCarnes||1)===1?'':'s'}`;
       else if(kind==='outro')priceLine=`R$ ${fmt(i.price)}`;
       else priceLine='Sem preço (vai dentro da marmita)';
       const visual=i.imageData?`<img class="item-img-sm" src="${i.imageData}" alt="" loading="lazy" decoding="async">`:`<span class="item-emoji-sm">${escapeHtml(i.icon||'🍽️')}</span>`;
@@ -2271,13 +2271,13 @@ async function loadCardapioTab(){
         </div>
       </div>`;
     });
-    const addLbl=kind==='marmita'?'marmita':kind==='carne'?'carne':kind==='acompanhamento'?'acompanhamento':'item';
+    const addLbl=kind==='marmita'?'marmita':kind==='carne'?'proteína':kind==='acompanhamento'?'acompanhamento':'item';
     h+=`<button class="btn-add-item" onclick="openItemModal(null,'${c._key}')">＋ Adicionar ${addLbl}</button></div>`;
   });
   body.innerHTML=h;
 }
 async function clearDayMenu(){
-  if(!confirm('Esgotar TODAS as carnes e acompanhamentos?\n\nUse pra começar o dia do zero. Você reativa um a um conforme prepara.'))return;
+  if(!confirm('Esgotar TODAS as proteínas e acompanhamentos?\n\nUse pra começar o dia do zero. Você reativa um a um conforme prepara.'))return;
   const targets=loadedItems.filter(i=>{
     const c=loadedCats.find(c=>c._key===i.catKey);
     return c&&(c.kind==='carne'||c.kind==='acompanhamento');
@@ -2285,6 +2285,41 @@ async function clearDayMenu(){
   if(!targets.length){toast('Nada pra esgotar');return;}
   await Promise.all(targets.map(t=>fs.update('itens',t._key,{available:false})));
   toast(`${targets.length} itens marcados como esgotados`);
+  await loadCardapioTab();
+}
+async function resetToDefaultSeed(){
+  if(!confirm('⚠️ ATENÇÃO: Isso apagará todas as categorias e itens atuais e restaurará o cardápio padrão com as Marmitas M, G, Executiva, proteínas e acompanhamentos sugeridos. Continuar?'))return;
+  const btn=document.querySelector('.btn-clear-day');
+  const oldText=btn?btn.textContent:'';
+  if(btn){btn.disabled=true;btn.textContent='Restaurando…';}
+  try {
+    if(FB_OK){
+      // Excluir todas as categorias
+      const cats = await fs.fetchAll('categorias');
+      if (cats) {
+        await Promise.all(Object.keys(cats).map(k => fs.remove('categorias', k)));
+      }
+      // Excluir todos os itens
+      const items = await fs.fetchAll('itens');
+      if (items) {
+        await Promise.all(Object.keys(items).map(k => fs.deleteImage(k)));
+        await Promise.all(Object.keys(items).map(k => fs.remove('itens', k)));
+      }
+      // Seed padrão
+      for (const {name,kind,items} of DEFAULT_SEED) {
+        const catId=await fs.add('categorias',{name,kind,ts:Date.now()});
+        for(const it of items){
+          await fs.add('itens',{...it,catKey:catId,available:true,ts:Date.now()});
+        }
+      }
+      toast('Cardápio padrão restaurado com sucesso! 🍱');
+    } else {
+      toast('Restaurado localmente');
+    }
+  } catch(e) {
+    console.error(e);
+    alert('Erro ao restaurar: ' + (e&&e.message||e));
+  }
   await loadCardapioTab();
 }
 function openCatModal(key){
