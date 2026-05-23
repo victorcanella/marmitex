@@ -868,7 +868,35 @@ window.fs = {
   async isOwner(uid) {
     if (!FB_CONFIGURED) return false;
     const snap = await getDoc(doc(db, `owners/${uid}`));
-    return snap.exists();
+    if (snap.exists()) return true;
+    
+    // Se o usuário está no Auth mas não no Firestore, e não há nenhum dono cadastrado no banco:
+    const ownersSnap = await getDocs(collection(db, 'owners'));
+    if (ownersSnap.empty) {
+      await setDoc(doc(db, `owners/${uid}`), {
+        email: auth.currentUser ? (auth.currentUser.email || '') : '',
+        createdAt: new Date()
+      });
+      // Salva configuração padrão caso não exista
+      const configSnap = await getDoc(doc(db, 'config/main'));
+      if (!configSnap.exists()) {
+        await setDoc(doc(db, 'config/main'), {
+          shopName: 'Marmitaria',
+          ownerEmail: auth.currentUser ? (auth.currentUser.email || '') : '',
+          ownerPhone: '',
+          openHour: 11, openMin: 0,
+          closeHour: 14, closeMin: 30,
+          closedDays: [0],
+          deliveryFee: 5,
+          paymentDiscount: 0,
+          serviceMode: 'both',
+          minOrderDelivery: 0,
+          etaMinutes: 45
+        });
+      }
+      return true;
+    }
+    return false;
   },
   async registerOwner(user) {
     if (!FB_CONFIGURED) return;
