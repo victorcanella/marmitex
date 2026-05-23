@@ -461,24 +461,6 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
       <p id="login-err" style="color:#c33;font-size:13px;display:none;margin:0"></p>
       <button id="btn-login" class="btn btn-red" onclick="doLogin()">Entrar →</button>
       <p style="text-align:center;font-size:12px;color:#888;margin:0"><a onclick="doForgotPassword()" style="color:var(--clay);cursor:pointer;font-weight:600">Esqueci minha senha</a></p>
-      <div style="display:flex;align-items:center;gap:10px;margin:4px 0;color:#bbb;font-size:12px"><div style="flex:1;height:1px;background:#eee"></div>ou<div style="flex:1;height:1px;background:#eee"></div></div>
-      <button id="btn-login-google" class="btn" onclick="doSignInGoogle()" style="background:#fff;border:1px solid #ddd;color:#444;padding:14px;border-radius:13px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px">🌐 Entrar com Google</button>
-      <p id="signup-hint" style="text-align:center;font-size:13px;color:#666;margin-top:10px;display:none">Ainda não cadastrou? <a onclick="goToSignup()" style="color:var(--clay);cursor:pointer;font-weight:600">Cadastrar dono</a></p>
-    </div>
-  </div>
-
-  <!-- S-SIGNUP — só funciona se não houver owner ainda -->
-  <div id="s-signup" class="screen">
-    <div class="topbar"><button class="back-btn" onclick="goToLogin()">←</button><span class="topbar-title">Cadastro do dono</span></div>
-    <div class="body" style="display:flex;flex-direction:column;gap:12px;padding-top:24px">
-      <div><div class="h1">Primeiro acesso 🍱</div><div class="sub">Cadastre a conta do dono. Só pode ser feito uma vez.</div></div>
-      <div><label class="inp-label">Nome da marmitaria</label><input id="signup-shopname" class="inp" type="text" placeholder="Ex: Marmitaria da Maria"></div>
-      <div><label class="inp-label">WhatsApp (recebe os pedidos)</label><input id="signup-whatsapp" class="inp" type="tel" placeholder="(00) 00000-0000" oninput="onOwnerPhoneInp(this)"></div>
-      <div><label class="inp-label">Email</label><input id="signup-email" class="inp" type="email" placeholder="seuemail@email.com" autocomplete="email"></div>
-      <div><label class="inp-label">Senha (mín. 6 caracteres)</label><input id="signup-pass" class="inp" type="password" placeholder="••••••••" autocomplete="new-password"></div>
-      <p id="signup-err" style="color:#c33;font-size:13px;display:none;margin:0"></p>
-      <button id="btn-signup" class="btn btn-red" onclick="doSignup()">Cadastrar →</button>
-      <p style="text-align:center;font-size:13px;color:#666;margin-top:8px">Já tem conta? <a onclick="goToLogin()" style="color:var(--clay);cursor:pointer;font-weight:600">Entrar</a></p>
     </div>
   </div>
 
@@ -897,30 +879,7 @@ window.fs = {
   },
 
   async signup(email, password, shopName, ownerPhone) {
-    if (!FB_CONFIGURED) throw new Error('Firebase não configurado');
-    const cleanPhone = (ownerPhone||'').replace(/\D/g,'');
-    if (!cleanPhone || cleanPhone.length < 10) {
-      const e = new Error('WhatsApp inválido'); e.code='invalid-phone'; throw e;
-    }
-    if (await this.hasOwner()) {
-      const e = new Error('Já existe um dono cadastrado'); e.code='owner-exists'; throw e;
-    }
-    const cred = await createUserWithEmailAndPassword(auth, email, password);
-    await this.registerOwner(cred.user);
-    await this.saveConfig({
-      shopName,
-      ownerEmail: email,
-      ownerPhone: cleanPhone,
-      openHour: 11, openMin: 0,
-      closeHour: 14, closeMin: 30,
-      closedDays: [0],
-      deliveryFee: 5,
-      paymentDiscount: 0,
-      serviceMode: 'both',
-      minOrderDelivery: 0,
-      etaMinutes: 45
-    });
-    return cred.user;
+    throw new Error('Cadastro de novos donos está desabilitado.');
   },
   async login(email, password) {
     if (!FB_CONFIGURED) throw new Error('Firebase não configurado');
@@ -930,12 +889,6 @@ window.fs = {
   async signInWithGoogle() {
     if (!FB_CONFIGURED) throw new Error('Firebase não configurado');
     const cred = await signInWithPopup(auth, googleProvider);
-    const owners = await this.hasOwner();
-    if (!owners) {
-      // Primeiro Google login: vira o dono
-      await this.registerOwner(cred.user);
-      return { user: cred.user, isOwner: true, firstTime: true };
-    }
     const isOwner = await this.isOwner(cred.user.uid);
     return { user: cred.user, isOwner, firstTime: false };
   },
@@ -2905,43 +2858,15 @@ function toast(msg){
 
 // ════ AUTH UI ════
 function showScreen(id){
-  ['s1','s-login','s-signup','s-cart','s-checkout','s-review','s-ok','s-admin'].forEach(s=>{
+  ['s1','s-login','s-cart','s-checkout','s-review','s-ok','s-admin'].forEach(s=>{
     const el=document.getElementById(s);if(el)el.classList.remove('active');
   });
   const target=document.getElementById(id);if(target)target.classList.add('active');
   cur=id;
 }
-function goToLogin(){showScreen('s-login');checkSignupAvailable();}
-function goToSignup(){showScreen('s-signup');}
+function goToLogin(){showScreen('s-login');}
 function goToWelcome(){showScreen('s1');}
 
-async function checkSignupAvailable(){
-  if(!FB_OK)return;
-  const hint=document.getElementById('signup-hint');
-  if(!hint)return;
-  const hasOwner=await fs.hasOwner();
-  hint.style.display=hasOwner?'none':'block';
-}
-
-async function doSignup(){
-  const btn=document.getElementById('btn-signup');
-  const err=document.getElementById('signup-err');err.style.display='none';
-  const shopName=document.getElementById('signup-shopname').value.trim();
-  const whatsapp=document.getElementById('signup-whatsapp').value.trim();
-  const email=document.getElementById('signup-email').value.trim();
-  const pass=document.getElementById('signup-pass').value;
-  if(!shopName){err.textContent='Informe o nome da marmitaria.';err.style.display='block';return;}
-  if(!whatsapp||whatsapp.replace(/\D/g,'').length<10){err.textContent='WhatsApp inválido.';err.style.display='block';return;}
-  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){err.textContent='Email inválido.';err.style.display='block';return;}
-  if(!pass||pass.length<6){err.textContent='Senha precisa ter pelo menos 6 caracteres.';err.style.display='block';return;}
-  btn.disabled=true;btn.textContent='Criando…';
-  try{
-    await fs.signup(email,pass,shopName,whatsapp);
-    // Seed inicial pra primeira execução
-    await seedDefaultMenu();
-  }
-  catch(e){err.textContent=mapAuthError(e);err.style.display='block';btn.disabled=false;btn.textContent='Cadastrar →';}
-}
 async function doLogin(){
   const btn=document.getElementById('btn-login');
   const err=document.getElementById('login-err');err.style.display='none';
@@ -2954,8 +2879,7 @@ async function doLogin(){
 }
 async function doSignInGoogle(){
   try{
-    const result=await fs.signInWithGoogle();
-    if(result.firstTime)await seedDefaultMenu();
+    await fs.signInWithGoogle();
   }catch(e){alert(mapAuthError(e));}
 }
 async function doLogout(){try{stopOrdersListener();await fs.logout();location.reload();}catch(e){alert('Erro ao sair.');}}
