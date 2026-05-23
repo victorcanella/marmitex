@@ -520,6 +520,10 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
       </div>
       <div style="margin-bottom:14px"><label class="inp-label">Seu nome</label><input id="ck-name" class="inp" type="text" placeholder="Ex: Ana Silva" oninput="onCheckoutChange()"></div>
       <div style="margin-bottom:18px"><label class="inp-label">WhatsApp / Telefone</label><input id="ck-phone" class="inp" type="tel" placeholder="(00) 00000-0000" inputmode="tel" oninput="onCheckoutPhone(this)"></div>
+      <div id="ck-address-block" style="margin-bottom:18px;display:none">
+        <label class="inp-label">Endereço de entrega</label>
+        <input id="ck-address" class="inp" type="text" placeholder="Rua, número, bairro, complemento..." oninput="onCheckoutAddressChange()">
+      </div>
       <div class="sec-label">Forma de pagamento</div>
       <div class="pay-grid" id="pay-grid"></div>
       <p class="muted" id="discount-hint" style="margin-top:8px;line-height:1.5"></p>
@@ -1035,7 +1039,7 @@ const ORDER_RETENTION_MS=7*24*60*60*1000;
 
 let cur='s1',busy=false;
 const cart={items:[]};
-const checkout={name:'',phone:'',phoneDigits:'',paymentType:null,observation:'',deliveryType:null};
+const checkout={name:'',phone:'',phoneDigits:'',paymentType:null,observation:'',deliveryType:null,address:localStorage.getItem('marmitaria_address')||''};
 
 const adminSt={tab:'orders',period:'month',filter:'active'};
 const catSt={key:null,kind:'marmita'};
@@ -1693,15 +1697,29 @@ function onCheckoutEnter(){
   document.getElementById('ck-name').value=checkout.name;
   document.getElementById('ck-phone').value=checkout.phone;
   document.getElementById('ck-obs').value=checkout.observation||'';
+  
+  // Carrega endereço do localStorage
+  const savedAddress = localStorage.getItem('marmitaria_address') || '';
+  checkout.address = savedAddress;
+  const addrInput = document.getElementById('ck-address');
+  if (addrInput) addrInput.value = savedAddress;
+
   renderDeliveryTypeBlock();
+  updateAddressBlockVisibility();
   renderPayGrid();refreshCheckoutHint();refreshCheckoutBtn();
+}
+function updateAddressBlockVisibility(){
+  const block=document.getElementById('ck-address-block');
+  if(!block)return;
+  const isDelivery=effectiveDeliveryType()==='delivery';
+  block.style.display=isDelivery?'block':'none';
 }
 function renderDeliveryTypeBlock(){
   const block=document.getElementById('ck-delivery-block');
   if(!block)return;
   const mode=appCfg.serviceMode||'both';
-  if(mode==='delivery'){block.style.display='none';checkout.deliveryType='delivery';return;}
-  if(mode==='pickup'){block.style.display='none';checkout.deliveryType='pickup';return;}
+  if(mode==='delivery'){block.style.display='none';checkout.deliveryType='delivery';updateAddressBlockVisibility();return;}
+  if(mode==='pickup'){block.style.display='none';checkout.deliveryType='pickup';updateAddressBlockVisibility();return;}
   block.style.display='block';
   const feeDisplay=Number(appCfg.deliveryFee)||0;
   const subDeliveryEl=document.getElementById('dt-sub-delivery');
@@ -1718,15 +1736,23 @@ function renderDeliveryTypeBlock(){
   }
   btnDelivery.classList.toggle('sel',checkout.deliveryType==='delivery');
   btnPickup.classList.toggle('sel',checkout.deliveryType==='pickup');
+  updateAddressBlockVisibility();
 }
 function setDeliveryType(t){
   if(t==='delivery'&&cartMissingForDelivery()>0){toast(`Faltam R$ ${fmt(cartMissingForDelivery())} pro mínimo de delivery`);return;}
   checkout.deliveryType=t;
   document.getElementById('dt-btn-delivery').classList.toggle('sel',t==='delivery');
   document.getElementById('dt-btn-pickup').classList.toggle('sel',t==='pickup');
+  updateAddressBlockVisibility();
   refreshCheckoutBtn();
 }
 function onCheckoutObsChange(){checkout.observation=(document.getElementById('ck-obs').value||'').trim();}
+function onCheckoutAddressChange(){
+  const val=(document.getElementById('ck-address').value||'').trim();
+  checkout.address=val;
+  localStorage.setItem('marmitaria_address',val);
+  refreshCheckoutBtn();
+}
 function renderPayGrid(){
   const disc=Number(appCfg.paymentDiscount)||0;
   const opts=[
@@ -1753,7 +1779,9 @@ function onCheckoutPhone(input){const v=fmtPhoneInput(input);checkout.phone=inpu
 function refreshCheckoutBtn(){
   const needsChoice=appCfg.serviceMode==='both';
   const dtOk=needsChoice?(checkout.deliveryType==='delivery'||checkout.deliveryType==='pickup'):true;
-  const ok=checkout.name.length>=2&&checkout.phoneDigits.length>=10&&checkout.paymentType&&dtOk;
+  const isDelivery=effectiveDeliveryType()==='delivery';
+  const addressOk=!isDelivery||(checkout.address&&checkout.address.trim().length>=5);
+  const ok=checkout.name.length>=2&&checkout.phoneDigits.length>=10&&checkout.paymentType&&dtOk&&addressOk;
   document.getElementById('btn-checkout-go').disabled=!ok;
 }
 
@@ -1766,6 +1794,9 @@ function renderReview(){
   const obsRow=checkout.observation?`<div class="sum-row" style="align-items:flex-start"><span class="sum-k">📝 Observação</span><span class="sum-v" style="white-space:pre-wrap;text-align:right;max-width:62%">${escapeHtml(checkout.observation)}</span></div>`:'';
   const dt=effectiveDeliveryType();
   const dtLabel=dt==='pickup'?'🏪 Retirada no local':'🛵 Entrega';
+  const addressRow=dt==='delivery'&&checkout.address
+    ?`<div class="sum-row" style="align-items:flex-start"><span class="sum-k">📍 Endereço</span><span class="sum-v" style="text-align:right;max-width:62%">${escapeHtml(checkout.address)}</span></div>`
+    :'';
   const feeRow=dt==='pickup'
     ?`<div class="sum-row"><span class="sum-k">Retirada no local</span><span class="sum-v" style="color:var(--leaf);font-weight:700">Sem taxa</span></div>`
     :`<div class="sum-row"><span class="sum-k">Taxa de entrega</span><span class="sum-v">R$ ${fmt(fee)}</span></div>`;
@@ -1773,6 +1804,7 @@ function renderReview(){
     <div class="sum-row"><span class="sum-k">👤 Cliente</span><span class="sum-v">${escapeHtml(checkout.name)}</span></div>
     <div class="sum-row"><span class="sum-k">📱 Telefone</span><span class="sum-v">${escapeHtml(checkout.phone)}</span></div>
     <div class="sum-row"><span class="sum-k">📦 Modalidade</span><span class="sum-v">${dtLabel}</span></div>
+    ${addressRow}
     <div class="sum-row"><span class="sum-k">💳 Pagamento</span><span class="sum-v">${PAY_LABELS[checkout.paymentType]||'—'}</span></div>
     ${obsRow}
     <div style="border-top:1px solid #eee;margin:8px 0"></div>
@@ -1791,7 +1823,11 @@ function buildOrderWaMsg(){
   const dt=effectiveDeliveryType();
   const dtLine=dt==='pickup'?'🏪 *Modalidade:* Retirada no local':'🛵 *Modalidade:* Entrega';
   let m=`🍱 *Novo Pedido — ${getShopName()}*\n\n`;
-  m+=`👤 *Cliente:* ${checkout.name}\n📞 *Tel:* ${checkout.phone}\n${dtLine}\n💳 *Pagamento:* ${PAY_LABELS[checkout.paymentType]}\n\n*Itens:*\n`;
+  m+=`👤 *Cliente:* ${checkout.name}\n📞 *Tel:* ${checkout.phone}\n${dtLine}\n`;
+  if(dt==='delivery'&&checkout.address){
+    m+=`📍 *Endereço:* ${checkout.address}\n`;
+  }
+  m+=`💳 *Pagamento:* ${PAY_LABELS[checkout.paymentType]}\n\n*Itens:*\n`;
   cart.items.forEach(it=>{
     m+=`• ${it.qty}× ${it.name}`;
     if(it.subtitle)m+=`\n   _${it.subtitle}_`;
@@ -1821,6 +1857,7 @@ async function doConfirmOrder(){
     name:checkout.name,phone:checkout.phoneDigits,
     paymentType:checkout.paymentType,observation:checkout.observation||'',
     deliveryType:effectiveDeliveryType(),
+    address:effectiveDeliveryType()==='delivery'?(checkout.address||''):'',
     items:cart.items.map(it=>({type:it.type,name:it.name,subtitle:it.subtitle||'',carnes:it.carnes||null,acompanhamentos:it.acompanhamentos||null,unitPrice:it.unitPrice,qty:it.qty})),
     subtotal:cartSubtotal(),deliveryFee:cartDeliveryFee(),discount:cartDiscount(),total:cartTotal(),
     status:'pending',date:toKey(new Date()),time:nowHM(),ts:Date.now()
@@ -1830,10 +1867,14 @@ async function doConfirmOrder(){
   window.open(waUrl,'_blank');
   document.getElementById('wa-btn').href=waUrl;
   const dtOk=orderData.deliveryType==='pickup'?'🏪 Retirada no local':'🛵 Entrega';
+  const addressOkLine = orderData.deliveryType==='delivery'&&checkout.address
+    ?`<div class="ok-row"><span class="ok-ico">📍</span><span class="ok-txt">${escapeHtml(checkout.address)}</span></div>`
+    :'';
   document.getElementById('ok-box').innerHTML=`
     <div class="ok-row"><span class="ok-ico">👤</span><span class="ok-txt">${escapeHtml(checkout.name)}</span></div>
     <div class="ok-row"><span class="ok-ico">📱</span><span class="ok-txt">${escapeHtml(checkout.phone)}</span></div>
     <div class="ok-row"><span class="ok-ico">📦</span><span class="ok-txt">${dtOk}</span></div>
+    ${addressOkLine}
     <div class="ok-row"><span class="ok-ico">🍱</span><span class="ok-txt">${cart.items.reduce((s,i)=>s+i.qty,0)} ${cart.items.reduce((s,i)=>s+i.qty,0)>1?'itens':'item'}</span></div>
     <div class="ok-row"><span class="ok-ico">💳</span><span class="ok-txt">${PAY_LABELS[checkout.paymentType]||'—'}</span></div>
     <div class="ok-row"><span class="ok-ico">💰</span><span class="ok-txt"><strong>Total: R$ ${fmt(orderData.total)}</strong></span></div>
@@ -1986,11 +2027,15 @@ function renderOrderCard(b,today){
   const dateInfo=fmtShortDate(b.date);
   const dt=b.deliveryType||'delivery';
   const dtBadge=dt==='pickup'?'<div class="bk-dt pickup">🏪 Retirada no local</div>':'<div class="bk-dt delivery">🛵 Entrega</div>';
+  const addressHtml=dt==='delivery'&&b.address
+    ?`<div style="font-size:12px;color:#555;margin-bottom:6px;background:#fcfcfc;border:1px solid #eee;padding:5px 8px;border-radius:6px">📍 <strong>Endereço:</strong> ${escapeHtml(b.address)}</div>`
+    :'';
   return `<div class="order-card ${cls}">
     <div class="bk-head"><span class="bk-date">${dateInfo}${b.time?' · '+b.time:''}</span>${statusBadge}<span class="bk-time">${b.time||''}</span></div>
     <div class="bk-name">👤 ${escapeHtml(b.name||'—')}</div>
     ${phoneFmt?`<div class="bk-phone">📞 ${phoneFmt}</div>`:''}
     ${dtBadge}
+    ${addressHtml}
     <div class="bk-items">${itemsHtml}</div>
     ${obsHtml}
     ${histSnippet}
@@ -2110,6 +2155,9 @@ function printOrderComanda(key){
     return html;
   }).join('');
   const obs=order.observation?`<div class="pr-line"><strong>📝 OBS:</strong> ${escapeHtml(order.observation)}</div>`:'';
+  const addressLine=order.deliveryType==='delivery'&&order.address
+    ?`<div class="pr-row" style="align-items:flex-start"><strong>Endereço:</strong> <span style="text-align:right;max-width:70%">${escapeHtml(order.address)}</span></div>`
+    :'';
   const area=document.getElementById('print-area');
   area.innerHTML=`
     <h1>🍱 ${escapeHtml(getShopName())}</h1>
@@ -2118,6 +2166,7 @@ function printOrderComanda(key){
       <div class="pr-row"><strong>Cliente:</strong> <span>${escapeHtml(order.name||'')}</span></div>
       <div class="pr-row"><strong>Tel:</strong> <span>${fmtPhone(order.phone||'')}</span></div>
       <div class="pr-row"><strong>Modo:</strong> <span>${dt}</span></div>
+      ${addressLine}
       <div class="pr-row"><strong>Pagto:</strong> <span>${PAY_LABELS[order.paymentType]||'—'}</span></div>
     </div>
     <div class="pr-line"><strong>ITENS</strong>${items}</div>
