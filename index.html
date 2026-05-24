@@ -1019,7 +1019,7 @@ let cur='s1',busy=false;
 const cart={items:[]};
 const checkout={name:'',phone:'',phoneDigits:'',paymentType:null,observation:'',deliveryType:null,address:localStorage.getItem('marmitaria_address')||''};
 
-const adminSt={tab:'orders',period:'month',filter:'active',orderPeriod:'today'};
+const adminSt={tab:'orders',period:'month',filter:'active',orderPeriod:'today',analyticsMonth:null,analyticsYear:null};
 const catSt={key:null,kind:'marmita'};
 const itemSt={key:null,catKey:null,tempIcon:null};
 const promoSt={key:null};
@@ -2833,14 +2833,41 @@ function renderAnalytics(all,hist){
   hist=hist||{};
   const body=document.getElementById('admin-body');
   const period=adminSt.period;
-  const {start,end,label}=getPeriod(period);
+  const {start,end,label}=getPeriod(period, adminSt.analyticsMonth, adminSt.analyticsYear);
   const s=combineSources(all,hist,start,end);
+  
+  let selectorsHtml = '';
+  if (period === 'month') {
+    const months = getLast24Months();
+    const selected = adminSt.analyticsMonth || toYearMonthKey(new Date());
+    selectorsHtml = `
+      <div class="period-selector-row" style="display:flex;justify-content:center;align-items:center;gap:8px;margin:8px 0 16px">
+        <label for="analytics-month-select" style="font-size:12.5px;font-weight:700;color:#666">Mês:</label>
+        <select id="analytics-month-select" class="inp" onchange="changeAnalyticsMonth(this.value)" style="width:auto;min-width:160px;padding:6px 34px 6px 12px;font-size:13px;font-weight:700;border-radius:10px;height:38px;background-color:#fff;border-color:#ddd;margin-bottom:0">
+          ${months.map(m => `<option value="${m.value}" ${m.value === selected ? 'selected' : ''}>${m.label}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  } else if (period === 'year') {
+    const years = getLast3Years();
+    const selected = Number(adminSt.analyticsYear) || new Date().getFullYear();
+    selectorsHtml = `
+      <div class="period-selector-row" style="display:flex;justify-content:center;align-items:center;gap:8px;margin:8px 0 16px">
+        <label for="analytics-year-select" style="font-size:12.5px;font-weight:700;color:#666">Ano:</label>
+        <select id="analytics-year-select" class="inp" onchange="changeAnalyticsYear(this.value)" style="width:auto;min-width:120px;padding:6px 34px 6px 12px;font-size:13px;font-weight:700;border-radius:10px;height:38px;background-color:#fff;border-color:#ddd;margin-bottom:0">
+          ${years.map(y => `<option value="${y}" ${y === selected ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  }
+
   let html=`<div class="period-tabs">
     <button class="period-tab${period==='today'?' active':''}" onclick="setPeriod('today')">Hoje</button>
     <button class="period-tab${period==='week'?' active':''}" onclick="setPeriod('week')">Semana</button>
     <button class="period-tab${period==='month'?' active':''}" onclick="setPeriod('month')">Mês</button>
     <button class="period-tab${period==='year'?' active':''}" onclick="setPeriod('year')">Ano</button>
   </div>
+  ${selectorsHtml}
   <p style="font-size:11px;color:#aaa;margin-bottom:12px;text-align:center">${label}</p>`;
   if(!s.totalOrders&&!s.totalCancelled&&!s.totalConfirmed&&!s.totalOutFD&&!s.totalPending){
     html+=`<div class="admin-empty"><div class="admin-empty-icon">📊</div><div style="color:#bbb;font-size:14px">Nenhum pedido no período</div></div>`;
@@ -2914,13 +2941,50 @@ function renderAnalytics(all,hist){
   body.innerHTML=html;
 }
 function setPeriod(p){adminSt.period=p;loadAnalyticsTab();}
-function getPeriod(period){
+function changeAnalyticsMonth(val) {
+  adminSt.analyticsMonth = val;
+  loadAnalyticsTab();
+}
+function changeAnalyticsYear(val) {
+  adminSt.analyticsYear = val;
+  loadAnalyticsTab();
+}
+function toYearMonthKey(d){
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1);
+}
+function getLast24Months(){
+  const list=[];const now=new Date();
+  for(let i=0;i<24;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    list.push({value:toYearMonthKey(d),label:`${FMONS[d.getMonth()]} de ${d.getFullYear()}`});
+  }
+  return list;
+}
+function getLast3Years(){
+  const list=[];const y=new Date().getFullYear();
+  for(let i=0;i<3;i++)list.push(y-i);
+  return list;
+}
+function getPeriod(period, customMonth, customYear){
   const now=new Date();let start,end,label;
   if(period==='today'){start=new Date(now);end=new Date(now);label=`Hoje · ${now.getDate()}/${pad2(now.getMonth()+1)}/${now.getFullYear()}`;}
   else if(period==='week'){const day=now.getDay(),diff=day===0?6:day-1;start=new Date(now);start.setDate(now.getDate()-diff);end=new Date(start);end.setDate(start.getDate()+6);label=`Semana · ${start.getDate()}/${pad2(start.getMonth()+1)} a ${end.getDate()}/${pad2(end.getMonth()+1)}`;}
-  else if(period==='month'){start=new Date(now.getFullYear(),now.getMonth(),1);end=new Date(now.getFullYear(),now.getMonth()+1,0);label=`${FMONS[now.getMonth()]} de ${now.getFullYear()}`;}
+  else if(period==='month'){
+    const ym=customMonth||toYearMonthKey(now);
+    const parts=ym.split('-');
+    const y=Number(parts[0]);
+    const mo=Number(parts[1]);
+    start=new Date(y,mo-1,1);
+    end=new Date(y,mo,0);
+    label=`${FMONS[mo-1]} de ${y}`;
+  }
   else if(period==='all'){start=new Date(now.getFullYear()-2,0,1);end=new Date(now.getFullYear()+1,11,31);label='Todos os pedidos (últimos 2 anos)';}
-  else {start=new Date(now.getFullYear(),0,1);end=new Date(now.getFullYear(),11,31);label=`Ano de ${now.getFullYear()}`;}
+  else {
+    const y=Number(customYear)||now.getFullYear();
+    start=new Date(y,0,1);
+    end=new Date(y,11,31);
+    label=`Ano de ${y}`;
+  }
   return {start:toKey(start),end:toKey(end),label};
 }
 
