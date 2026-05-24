@@ -1917,6 +1917,10 @@ async function loadOrdersTab(){
   const oPeriod = adminSt.orderPeriod || 'today';
   const { start, end, label } = getPeriod(oPeriod);
   const filteredByPeriod = all.filter(b => b.date >= start && b.date <= end);
+  
+  console.log('[DEBUG] Todos os pedidos do banco:', all);
+  console.log('[DEBUG] Período selecionado:', oPeriod, 'de', start, 'até', end);
+  console.log('[DEBUG] Pedidos no período filtrado:', filteredByPeriod);
 
   const counts={
     all:filteredByPeriod.length,
