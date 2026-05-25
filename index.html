@@ -74,9 +74,14 @@ body{font-family:var(--font-body);background:#e8e8e8;display:flex;justify-conten
 
 .logo-hdr{background:var(--ink);padding:24px 22px 22px;flex-shrink:0;border-bottom:3px solid var(--clay);position:relative;overflow:hidden}
 .logo-hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 30%,rgba(209,175,107,.18),transparent 60%);pointer-events:none}
-.logo-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;display:flex;align-items:center;justify-content:center}
-.logo-center-img{height:54px;width:auto;object-fit:contain;transition:all .2s}
-@media (min-width: 600px) {
+.logo-hdr-left{display:flex;flex-direction:column;gap:4px;max-width:65%}
+@media (min-width: 900px) {
+  .logo-hdr-left{max-width:35%}
+}
+.logo-center{position:absolute;top:auto;bottom:12px;left:auto;right:18px;transform:none;pointer-events:none;display:flex;align-items:center;justify-content:flex-end}
+.logo-center-img{height:48px;width:auto;object-fit:contain;transition:all .2s}
+@media (min-width: 900px) {
+  .logo-center{top:50%;left:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);justify-content:center}
   .logo-center-img{height:72px}
 }
 .shop-name{color:#fff;font-family:var(--font-display);font-weight:800;font-size:28px;letter-spacing:.01em;line-height:1.15;position:relative}
@@ -442,7 +447,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   <!-- S1 — Cardápio cliente -->
   <div id="s1" class="screen active">
     <div class="logo-hdr" style="position:relative">
-      <div style="display:flex; flex-direction:column; gap:4px; max-width:65%">
+      <div class="logo-hdr-left">
         <div class="shop-name" id="shop-name-big" style="visibility:hidden">Marmitaria</div>
         <div class="shop-tag" id="shop-tag" style="display:none"></div>
         <div style="display:flex">
