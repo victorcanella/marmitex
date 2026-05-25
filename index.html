@@ -3,24 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,viewport-fit=cover">
-<title>Marmitaria — Cardápio digital</title>
+<title>Restaurante da Clicia — Cardápio digital</title>
 
-<meta name="description" content="Cardápio digital da marmitaria. Monte sua marmita, escolha carnes e acompanhamentos, peça pelo WhatsApp.">
-<meta name="author" content="Marmitaria">
+<meta name="description" content="Cardápio digital do Restaurante da Clicia. Monte sua marmita, escolha carnes e acompanhamentos, peça pelo WhatsApp.">
+<meta name="author" content="Restaurante da Clicia">
 <meta name="robots" content="index,follow">
 
 <!-- PWA -->
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#c8602c">
-<meta name="application-name" content="Marmitaria">
+<meta name="theme-color" content="#C8332A">
+<meta name="application-name" content="Restaurante da Clicia">
 <meta name="mobile-web-app-capable" content="yes">
 
 <!-- iOS PWA -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Marmitaria">
-<link rel="apple-touch-icon" href="/maskable_icon_x192.png">
-<link rel="icon" type="image/png" href="/maskable_icon_x192.png">
+<meta name="apple-mobile-web-app-title" content="Restaurante da Clicia">
+<link rel="apple-touch-icon" href="logo2.png">
+<link rel="icon" type="image/png" href="logo2.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,9 +28,13 @@
 
 <style>
 :root{
-  --clay:#c8602c;--clay-deep:#8a4118;--clay-soft:#fdeee2;
-  --leaf:#2a7d44;--gold:#d9a05b;
-  --ink:#1a1a1a;--cream:#fef8ee;
+  --clay:#C8332A;
+  --clay-deep:#911f19;
+  --clay-soft:#f9ebe9;
+  --leaf:#2a7d44;
+  --gold:#D1AF6B;
+  --ink:#092A8C;
+  --cream:#FCF8F7;
   --font-body:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   --font-display:'Playfair Display',Georgia,serif
 }
@@ -40,7 +44,7 @@ body{font-family:var(--font-body);background:#e8e8e8;display:flex;justify-conten
 #app{width:100%;max-width:430px;height:100vh;background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 0 60px rgba(0,0,0,.15)}
 
 @media (min-width: 900px) {
-  body{background:linear-gradient(135deg,#fef8ee 0%,#f5e6d3 100%);padding:24px 0}
+  body{background:linear-gradient(135deg,#e8edfa 0%,#f9ebe9 100%);padding:24px 0}
   #app{max-width:1150px;height:calc(100vh - 48px);border-radius:18px;box-shadow:0 14px 50px rgba(0,0,0,.12)}
   .screen{border-radius:18px;overflow:hidden}
   .body{padding:28px 40px}
@@ -69,7 +73,12 @@ body{font-family:var(--font-body);background:#e8e8e8;display:flex;justify-conten
 @keyframes sor{from{transform:translateX(0)}to{transform:translateX(100%)}}
 
 .logo-hdr{background:var(--ink);padding:24px 22px 22px;flex-shrink:0;border-bottom:3px solid var(--clay);position:relative;overflow:hidden}
-.logo-hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 30%,rgba(200,96,44,.22),transparent 60%);pointer-events:none}
+.logo-hdr::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 80% 30%,rgba(209,175,107,.18),transparent 60%);pointer-events:none}
+.logo-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;display:flex;align-items:center;justify-content:center}
+.logo-center-img{height:54px;width:auto;object-fit:contain;transition:all .2s}
+@media (min-width: 600px) {
+  .logo-center-img{height:72px}
+}
 .shop-name{color:#fff;font-family:var(--font-display);font-weight:800;font-size:28px;letter-spacing:.01em;line-height:1.15;position:relative}
 .shop-name .accent{color:var(--clay)}
 .shop-name-sm{color:#fff;font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:.01em;line-height:1}
@@ -166,7 +175,7 @@ textarea.inp{resize:vertical;min-height:60px}
 .pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .pay-btn{padding:14px 8px;background:#f8f8f8;border:2px solid #ebebeb;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s;font-family:inherit}
 .pay-btn:hover{border-color:var(--clay);background:var(--clay-soft)}
-.pay-btn.sel{border-color:var(--clay);background:var(--clay-soft);box-shadow:0 0 0 3px rgba(200,96,44,.12)}
+.pay-btn.sel{border-color:var(--clay);background:var(--clay-soft);box-shadow:0 0 0 3px rgba(200,51,42,.12)}
 .pay-btn-icon{font-size:22px}
 .pay-btn-lbl{font-size:11.5px;font-weight:800;color:#111}
 .pay-btn-disc{font-size:9.5px;font-weight:700;color:var(--leaf);margin-top:1px;text-transform:uppercase;letter-spacing:.4px}
@@ -174,7 +183,7 @@ textarea.inp{resize:vertical;min-height:60px}
 .dt-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
 .dt-btn{padding:16px 10px;background:#f8f8f8;border:2px solid #ebebeb;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all .15s;font-family:inherit}
 .dt-btn:hover{border-color:var(--clay);background:var(--clay-soft)}
-.dt-btn.sel{border-color:var(--clay);background:var(--clay-soft);box-shadow:0 0 0 3px rgba(200,96,44,.12)}
+.dt-btn.sel{border-color:var(--clay);background:var(--clay-soft);box-shadow:0 0 0 3px rgba(200,51,42,.12)}
 .dt-btn.disabled,.dt-btn:disabled{opacity:.45;cursor:not-allowed;background:#f5f5f5;border-color:#e8e8e8}
 .dt-ico{font-size:24px;line-height:1}
 .dt-lbl{font-size:12.5px;font-weight:800;color:#111}
@@ -183,7 +192,7 @@ textarea.inp{resize:vertical;min-height:60px}
 .sm-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .sm-btn{padding:14px 6px;background:#f8f8f8;border:2px solid #ebebeb;border-radius:12px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;font-family:inherit}
 .sm-btn:hover{border-color:var(--clay);background:var(--clay-soft)}
-.sm-btn.sel{border-color:var(--clay);background:var(--clay-soft);box-shadow:0 0 0 3px rgba(200,96,44,.12)}
+.sm-btn.sel{border-color:var(--clay);background:var(--clay-soft);box-shadow:0 0 0 3px rgba(200,51,42,.12)}
 .sm-ico{font-size:22px;line-height:1}
 .sm-lbl{font-size:11.5px;font-weight:800;color:#111}
 .sm-sub{font-size:9.5px;font-weight:600;color:#777;text-align:center;line-height:1.2}
@@ -206,7 +215,7 @@ textarea.inp{resize:vertical;min-height:60px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-row{display:flex;align-items:center;justify-content:center;gap:8px;color:#bbb;font-size:13px;padding:30px}
 
-.ok-ring{width:90px;height:90px;background:var(--clay);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 0 6px rgba(200,96,44,.15)}
+.ok-ring{width:90px;height:90px;background:var(--clay);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:42px;animation:pop .5s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 0 6px rgba(200,51,42,.15)}
 @keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
 .ok-box{background:#f8f8f8;border-radius:13px;padding:14px 16px;width:100%;text-align:left;margin:14px 0 6px}
 .ok-row{display:flex;gap:10px;align-items:flex-start;padding:4px 0}
@@ -353,7 +362,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 .cfg-day-row{display:flex;flex-wrap:wrap;gap:7px;margin-top:4px}
 .cfg-day-btn{padding:9px 13px;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;border:2px solid #ebebeb;background:#fff;color:#111;transition:all .15s;font-family:inherit}
 .cfg-day-btn.off{background:#f5f5f5;color:#bbb;text-decoration:line-through;border-color:#ebebeb}
-.cfg-day-btn.on{background:var(--ink);color:#fff;border-color:var(--clay);box-shadow:0 0 0 3px rgba(200,96,44,.12)}
+.cfg-day-btn.on{background:var(--ink);color:#fff;border-color:var(--clay);box-shadow:0 0 0 3px rgba(200,51,42,.12)}
 .cfg-warn{background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:10px 14px;font-size:12px;color:#856404;margin-bottom:16px;line-height:1.5;display:none}
 .cfg-warn.show{display:block}
 
@@ -433,9 +442,19 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   <!-- S1 — Cardápio cliente -->
   <div id="s1" class="screen active">
     <div class="logo-hdr" style="position:relative">
-      <div class="shop-name" id="shop-name-big" style="visibility:hidden">Marmitaria</div>
-      <div class="shop-tag" id="shop-tag" style="display:none"></div>
-      <span id="open-tag" class="open-tag open" style="display:none"><span class="dot"></span><span id="open-tag-text">Aberto</span></span>
+      <div style="display:flex; flex-direction:column; gap:4px; max-width:65%">
+        <div class="shop-name" id="shop-name-big" style="visibility:hidden">Marmitaria</div>
+        <div class="shop-tag" id="shop-tag" style="display:none"></div>
+        <div style="display:flex">
+          <span id="open-tag" class="open-tag open" style="display:none"><span class="dot"></span><span id="open-tag-text">Aberto</span></span>
+        </div>
+      </div>
+      
+      <!-- Centralized logo -->
+      <div class="logo-center">
+        <img class="logo-center-img" src="logo2.png" alt="Logo" onerror="this.style.display='none'">
+      </div>
+      
       <button id="link-owner-login" onclick="goToLogin()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.45);color:#fff;font-size:11px;cursor:pointer;font-weight:700;letter-spacing:.5px;padding:7px 12px;border-radius:20px;backdrop-filter:blur(6px)">SOU DA CASA →</button>
     </div>
 
@@ -535,7 +554,7 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   <div id="s-ok" class="screen">
     <div class="body-center" style="justify-content:flex-start;padding-top:36px">
       <div class="ok-ring">🍱</div>
-      <div><div class="h1" style="font-size:22px">Pedido enviado!</div><div class="sub" style="margin-top:5px">Aguarde o contato da <strong id="ok-shop-name">Marmitaria</strong>.</div></div>
+      <div><div class="h1" style="font-size:22px">Pedido enviado!</div><div class="sub" style="margin-top:5px">Aguarde o contato do <strong id="ok-shop-name">Restaurante da Clicia</strong>.</div></div>
       <div class="ok-box" id="ok-box"></div>
       <div style="width:100%">
         <div class="notify-label">Não recebeu? Reenvie:</div>
@@ -547,7 +566,12 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
 
   <!-- S-ADMIN -->
   <div id="s-admin" class="screen">
-    <div class="logo-hdr" style="padding:13px 18px"><div class="shop-name-sm" id="shop-name-sm" style="visibility:hidden">Marmitaria</div></div>
+    <div class="logo-hdr" style="padding:13px 18px; position:relative">
+      <div class="shop-name-sm" id="shop-name-sm" style="visibility:hidden">Marmitaria</div>
+      <div class="logo-center">
+        <img src="logo2.png" alt="Logo" style="height:32px; width:auto; object-fit:contain" onerror="this.style.display='none'">
+      </div>
+    </div>
     <div class="admin-bar">
       <span class="admin-badge">🔐 PAINEL DO DONO</span>
       <div style="display:flex;gap:6px">
@@ -1032,7 +1056,7 @@ let customerHistory=new Map();
 let currentUser=null;
 
 const DEFAULT_CFG={
-  shopName:'Marmitaria',
+  shopName:'Restaurante da Clicia',
   ownerPhone:'',
   ownerEmail:'',
   openHour:11,openMin:0,
@@ -1063,7 +1087,7 @@ async function loadConfig(force){
   applyShopName();
   return appCfg;
 }
-function getShopName(){return appCfg.shopName||'Marmitaria';}
+function getShopName(){return appCfg.shopName||'Restaurante da Clicia';}
 function applyShopName(){
   const n=getShopName();
   try{document.title=n;}catch(e){}
