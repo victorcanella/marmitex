@@ -1075,7 +1075,8 @@ const DEFAULT_CFG={
   paymentDiscount:0,
   serviceMode:'both',
   minOrderDelivery:0,
-  etaMinutes:45
+  etaMinutes:45,
+  printerWidth:42
 };
 let appCfg={...DEFAULT_CFG};
 let cfgLoaded=false;
@@ -1092,6 +1093,7 @@ async function loadConfig(force){
   appCfg.paymentDiscount=Number(appCfg.paymentDiscount)||0;
   appCfg.minOrderDelivery=Math.max(0,Number(appCfg.minOrderDelivery)||0);
   appCfg.etaMinutes=Math.max(0,Math.min(360,Number(appCfg.etaMinutes)||0));
+  appCfg.printerWidth=Number(appCfg.printerWidth)||42;
   cfgLoaded=true;
   applyShopName();
   return appCfg;
@@ -2173,41 +2175,182 @@ function openDailySummary(){
 function closeDailySummary(){const m=document.getElementById('__summary_m');if(m)m.remove();}
 
 // Impressão de comanda
+// Impressão de comanda
+function stripEmojis(text) {
+  if (!text) return '';
+  let cleaned = text;
+  try {
+    cleaned = cleaned.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '');
+  } catch (e) {
+    cleaned = cleaned.replace(/[\u2700-\u27BF]|[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g, '');
+  }
+  return cleaned.replace(/\s+/g, ' ').trim();
+}
+
+function padLine(left, right, width) {
+  left = stripEmojis(left);
+  right = stripEmojis(right);
+  const leftLen = left.length;
+  const rightLen = right.length;
+  
+  if (leftLen + rightLen >= width) {
+    const available = width - rightLen - 1;
+    if (available > 5) {
+      return left.substring(0, available) + ' ' + right;
+    } else {
+      return left + '\n' + ''.padStart(width - rightLen) + right;
+    }
+  }
+  const spaces = width - leftLen - rightLen;
+  return left + ' '.repeat(spaces) + right;
+}
+
+function centerLine(text, width) {
+  text = stripEmojis(text);
+  if (text.length >= width) {
+    return text.substring(0, width);
+  }
+  const leftPadding = Math.floor((width - text.length) / 2);
+  return ' '.repeat(leftPadding) + text;
+}
+
+function separatorLine(char, width) {
+  return char.repeat(width);
+}
+
+function wrapText(text, width, indent = '') {
+  text = stripEmojis(text);
+  const words = text.split(' ');
+  const lines = [];
+  let currentLine = indent;
+  const maxWidth = width - 1;
+  
+  for (const word of words) {
+    if ((currentLine + (currentLine === indent ? '' : ' ') + word).length > maxWidth) {
+      if (currentLine !== indent) {
+        lines.push(currentLine);
+        currentLine = indent + word;
+      } else {
+        lines.push(currentLine + word);
+        currentLine = indent;
+      }
+    } else {
+      currentLine += (currentLine === indent ? '' : ' ') + word;
+    }
+  }
+  if (currentLine !== indent) {
+    lines.push(currentLine);
+  }
+  return lines.join('\n');
+}
+
+function generateReceiptHTML(order, cols = 42) {
+  const shopName = getShopName();
+  let out = '';
+  
+  // 1. Cabeçalho
+  out += centerLine(shopName, cols) + '\n';
+  out += separatorLine('-', cols) + '\n';
+  out += padLine(`Data: ${order.date || ''}`, `Hora: ${order.time || ''}`, cols) + '\n';
+  out += padLine(`Pedido:`, `#${order._key ? order._key.substring(0, 6).toUpperCase() : '—'}`, cols) + '\n';
+  out += separatorLine('-', cols) + '\n';
+
+  // 2. Dados do Cliente
+  out += `CLIENTE:\n`;
+  out += `Nome: ${order.name || '—'}\n`;
+  out += `Tel: ${fmtPhone(order.phone || '')}\n`;
+  
+  const dtLabel = order.deliveryType === 'pickup' ? 'RETIRADA NO LOCAL' : 'ENTREGA A DOMICÍLIO';
+  out += `Modo: ${dtLabel}\n`;
+  
+  if (order.deliveryType === 'delivery' && order.address) {
+    out += `Endereço:\n${wrapText(order.address, cols, '  ')}\n`;
+  }
+  out += separatorLine('-', cols) + '\n';
+
+  // 3. Itens do Pedido
+  out += `ITENS DO PEDIDO:\n`;
+  (order.items || []).forEach(it => {
+    const qtyText = `${it.qty}x `;
+    const priceText = `R$ ${fmt(it.unitPrice * it.qty)}`;
+    const nameText = it.name;
+    out += padLine(qtyText + nameText, priceText, cols) + '\n';
+    if (it.subtitle) {
+      out += wrapText(it.subtitle, cols, '  * ') + '\n';
+    }
+  });
+  
+  if (order.observation) {
+    out += separatorLine('-', cols) + '\n';
+    out += `OBSERVAÇÕES:\n`;
+    out += wrapText(order.observation, cols, '  ') + '\n';
+  }
+  out += separatorLine('-', cols) + '\n';
+
+  // 4. Financeiro
+  out += padLine('Subtotal:', `R$ ${fmt(order.subtotal || 0)}`, cols) + '\n';
+  if (order.deliveryFee) {
+    out += padLine('Taxa de Entrega:', `R$ ${fmt(order.deliveryFee)}`, cols) + '\n';
+  }
+  if (order.discount) {
+    out += padLine('Desconto:', `-R$ ${fmt(order.discount)}`, cols) + '\n';
+  }
+  
+  out += separatorLine('=', cols) + '\n';
+  out += padLine('TOTAL:', `R$ ${fmt(order.total || 0)}`, cols) + '\n';
+  
+  const payLabel = PAY_LABELS[order.paymentType] || '—';
+  out += padLine('Pagamento:', payLabel, cols) + '\n';
+  out += separatorLine('=', cols) + '\n';
+
+  // 5. Rodapé
+  out += centerLine('Obrigado pela preferência!', cols) + '\n';
+  out += centerLine('Tenha uma ótima refeição!', cols) + '\n';
+
+  return `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { margin: 0; }
+  html, body { margin: 0; padding: 0; width: 100%; background-color: #ffffff; }
+  body { padding: 4mm 2mm; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.35; color: #000000; }
+  pre { margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap; word-break: break-all; }
+</style>
+</head>
+<body>
+  <pre>${escapeHtml(out)}</pre>
+</body>
+</html>`;
+}
+
 function printOrderComanda(key){
   const order=allOrdersCache.find(o=>o._key===key);
   if(!order)return;
-  const dt=order.deliveryType==='pickup'?'🏪 RETIRADA':'🛵 ENTREGA';
-  const items=(order.items||[]).map(it=>{
-    let html=`<div class="pr-it"><strong>${it.qty}× ${escapeHtml(it.name)}</strong>`;
-    if(it.subtitle)html+=`<br>${escapeHtml(it.subtitle)}`;
-    html+=`<br>R$ ${fmt(it.unitPrice*it.qty)}</div>`;
-    return html;
-  }).join('');
-  const obs=order.observation?`<div class="pr-line"><strong>📝 OBS:</strong> ${escapeHtml(order.observation)}</div>`:'';
-  const addressLine=order.deliveryType==='delivery'&&order.address
-    ?`<div class="pr-row" style="align-items:flex-start"><strong>Endereço:</strong> <span style="text-align:right;max-width:70%">${escapeHtml(order.address)}</span></div>`
-    :'';
-  const area=document.getElementById('print-area');
-  area.innerHTML=`
-    <h1>🍱 ${escapeHtml(getShopName())}</h1>
-    <div>Pedido ${order.date||''} · ${order.time||''}</div>
-    <div class="pr-line">
-      <div class="pr-row"><strong>Cliente:</strong> <span>${escapeHtml(order.name||'')}</span></div>
-      <div class="pr-row"><strong>Tel:</strong> <span>${fmtPhone(order.phone||'')}</span></div>
-      <div class="pr-row"><strong>Modo:</strong> <span>${dt}</span></div>
-      ${addressLine}
-      <div class="pr-row"><strong>Pagto:</strong> <span>${PAY_LABELS[order.paymentType]||'—'}</span></div>
-    </div>
-    <div class="pr-line"><strong>ITENS</strong>${items}</div>
-    ${obs}
-    <div class="pr-line">
-      <div class="pr-row"><span>Subtotal</span><span>R$ ${fmt(order.subtotal||0)}</span></div>
-      ${order.deliveryFee?`<div class="pr-row"><span>Taxa entrega</span><span>R$ ${fmt(order.deliveryFee)}</span></div>`:''}
-      ${order.discount?`<div class="pr-row"><span>Desconto</span><span>-R$ ${fmt(order.discount)}</span></div>`:''}
-      <div class="pr-row" style="font-size:14px;font-weight:800;margin-top:4px"><span>TOTAL</span><span>R$ ${fmt(order.total||0)}</span></div>
-    </div>
-  `;
-  setTimeout(()=>{window.print();area.innerHTML='';},100);
+  
+  const widthCols = parseInt(appCfg.printerWidth) || 42;
+  const receiptHTML = generateReceiptHTML(order, widthCols);
+  
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = 'none';
+  iframe.style.left = '-9999px';
+  document.body.appendChild(iframe);
+  
+  const doc = iframe.contentDocument || iframe.contentWindow.document;
+  doc.open();
+  doc.write(receiptHTML);
+  doc.close();
+  
+  setTimeout(() => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 1000);
+  }, 300);
 }
 
 let _pruneRunning=false;
@@ -2707,6 +2850,20 @@ async function loadConfigTab(){
     </div>
     <div style="height:18px"></div>
 
+    <div class="h1" style="font-size:17px;margin-bottom:6px">🖨️ Impressora Térmica</div>
+    <div class="sub" style="margin-bottom:14px">Escolha a largura padrão do cupom de impressão.</div>
+    <div class="form-row">
+      <div class="inp-wrap">
+        <label class="inp-label">Largura do papel (Colunas)</label>
+        <select id="cfg-printer-width" class="inp">
+          <option value="32" ${appCfg.printerWidth===32?'selected':''}>58mm (32 colunas)</option>
+          <option value="42" ${(!appCfg.printerWidth||appCfg.printerWidth===42)?'selected':''}>80mm / 72mm (42 colunas)</option>
+          <option value="48" ${appCfg.printerWidth===48?'selected':''}>80mm (48 colunas)</option>
+        </select>
+      </div>
+    </div>
+    <div style="height:18px"></div>
+
     <div class="h1" style="font-size:17px;margin-bottom:6px">🕐 Horário de funcionamento</div>
     <div class="form-row">
       <div class="inp-wrap"><label class="inp-label">Abre às</label><input id="cfg-open" class="inp" type="time" value="${pad2(appCfg.openHour)}:${pad2(appCfg.openMin)}"></div>
@@ -2764,11 +2921,12 @@ async function saveConfigForm(btn){
   const paymentDiscount=parseFloat(document.getElementById('cfg-discount').value)||0;
   const minOrderDelivery=Math.max(0,parseFloat(document.getElementById('cfg-min-order').value)||0);
   const etaMinutes=Math.max(0,Math.min(360,parseInt(document.getElementById('cfg-eta').value)||0));
+  const printerWidth=parseInt(document.getElementById('cfg-printer-width').value)||42;
   const serviceMode=appCfg.serviceMode||'both';
   if(!shopName){alert('Informe o nome da marmitaria.');btn.disabled=false;btn.textContent='💾 Salvar configuração';return;}
   if(!ownerPhone||ownerPhone.length<10){alert('Informe o WhatsApp (com DDD).');btn.disabled=false;btn.textContent='💾 Salvar configuração';return;}
   if(isNaN(oh)||isNaN(ch)){alert('Horário inválido.');btn.disabled=false;btn.textContent='💾 Salvar configuração';return;}
-  const cfg={shopName,ownerPhone,ownerEmail,openHour:oh,openMin:om||0,closeHour:ch,closeMin:cm||0,closedDays:appCfg.closedDays||[],deliveryFee,paymentDiscount,serviceMode,minOrderDelivery,etaMinutes};
+  const cfg={shopName,ownerPhone,ownerEmail,openHour:oh,openMin:om||0,closeHour:ch,closeMin:cm||0,closedDays:appCfg.closedDays||[],deliveryFee,paymentDiscount,serviceMode,minOrderDelivery,etaMinutes,printerWidth};
   try{
     if(FB_OK)await fs.saveConfig(cfg);
     appCfg={...appCfg,...cfg};cfgLoaded=true;applyShopName();
