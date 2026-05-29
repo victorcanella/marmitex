@@ -531,8 +531,32 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
       <div style="margin-bottom:14px"><label class="inp-label">Seu nome</label><input id="ck-name" class="inp" type="text" placeholder="Ex: Ana Silva" oninput="onCheckoutChange()"></div>
       <div style="margin-bottom:18px"><label class="inp-label">WhatsApp / Telefone</label><input id="ck-phone" class="inp" type="tel" placeholder="(00) 00000-0000" inputmode="tel" oninput="onCheckoutPhone(this)"></div>
       <div id="ck-address-block" style="margin-bottom:18px;display:none">
-        <label class="inp-label">Endereço de entrega</label>
-        <input id="ck-address" class="inp" type="text" placeholder="Rua, número, bairro, complemento..." oninput="onCheckoutAddressChange()">
+        <div style="margin-bottom:12px">
+          <label class="inp-label">Rua / Av / Logradouro *</label>
+          <input id="ck-street" class="inp" type="text" placeholder="Ex: Rua das Flores" oninput="onStructuredAddressChange()">
+        </div>
+        <div class="form-row" style="margin-bottom:12px">
+          <div class="inp-wrap">
+            <label class="inp-label">Número *</label>
+            <input id="ck-number" class="inp" type="text" placeholder="Ex: 123" oninput="onStructuredAddressChange()">
+          </div>
+          <div class="inp-wrap">
+            <label class="inp-label">Bairro *</label>
+            <input id="ck-neighborhood" class="inp" type="text" placeholder="Ex: Centro" oninput="onStructuredAddressChange()">
+          </div>
+        </div>
+        <div style="margin-bottom:12px; position:relative">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px">
+            <label class="inp-label" style="margin:0">Complemento</label>
+            <button type="button" id="btn-no-complement" onclick="toggleNoComplement()" style="background:none; border:none; color:var(--clay); font-size:11px; font-weight:700; cursor:pointer; text-decoration:underline">Não há complemento</button>
+          </div>
+          <input id="ck-complement" class="inp" type="text" placeholder="Ex: Apto 402, Bloco B" oninput="onStructuredAddressChange()">
+        </div>
+        <div style="margin-bottom:14px">
+          <label class="inp-label">Ponto de Referência <span style="text-transform:none;color:#aaa;font-weight:500">(opcional)</span></label>
+          <input id="ck-ref" class="inp" type="text" placeholder="Ex: Próximo à padaria" oninput="onStructuredAddressChange()">
+        </div>
+        <input id="ck-address" type="hidden">
       </div>
       <div class="sec-label">Forma de pagamento</div>
       <div class="pay-grid" id="pay-grid"></div>
@@ -1711,7 +1735,39 @@ function onCheckoutEnter(){
   document.getElementById('ck-phone').value=checkout.phone;
   document.getElementById('ck-obs').value=checkout.observation||'';
   
-  // Carrega endereço do localStorage
+  // Carrega endereço do localStorage de forma estruturada
+  const street = localStorage.getItem('marmitaria_addr_street') || '';
+  const num = localStorage.getItem('marmitaria_addr_num') || '';
+  const neigh = localStorage.getItem('marmitaria_addr_neigh') || '';
+  const comp = localStorage.getItem('marmitaria_addr_comp') || '';
+  const ref = localStorage.getItem('marmitaria_addr_ref') || '';
+  const noComp = localStorage.getItem('marmitaria_addr_no_comp') === '1';
+
+  const streetInput = document.getElementById('ck-street');
+  const numInput = document.getElementById('ck-number');
+  const neighInput = document.getElementById('ck-neighborhood');
+  const compInput = document.getElementById('ck-complement');
+  const refInput = document.getElementById('ck-ref');
+  const btnNoComp = document.getElementById('btn-no-complement');
+
+  if (streetInput) streetInput.value = street;
+  if (numInput) numInput.value = num;
+  if (neighInput) neighInput.value = neigh;
+  if (compInput) {
+    compInput.value = comp;
+    compInput.disabled = noComp;
+  }
+  if (btnNoComp) {
+    if (noComp) {
+      btnNoComp.textContent = 'Adicionar complemento';
+      btnNoComp.style.color = '#888';
+    } else {
+      btnNoComp.textContent = 'Não há complemento';
+      btnNoComp.style.color = 'var(--clay)';
+    }
+  }
+  if (refInput) refInput.value = ref;
+
   const savedAddress = localStorage.getItem('marmitaria_address') || '';
   checkout.address = savedAddress;
   const addrInput = document.getElementById('ck-address');
@@ -1760,11 +1816,56 @@ function setDeliveryType(t){
   refreshCheckoutBtn();
 }
 function onCheckoutObsChange(){checkout.observation=(document.getElementById('ck-obs').value||'').trim();}
-function onCheckoutAddressChange(){
-  const val=(document.getElementById('ck-address').value||'').trim();
-  checkout.address=val;
-  localStorage.setItem('marmitaria_address',val);
+function onStructuredAddressChange() {
+  const street = (document.getElementById('ck-street').value || '').trim();
+  const num = (document.getElementById('ck-number').value || '').trim();
+  const neigh = (document.getElementById('ck-neighborhood').value || '').trim();
+  const comp = (document.getElementById('ck-complement').value || '').trim();
+  const ref = (document.getElementById('ck-ref').value || '').trim();
+
+  const isOk = street.length >= 2 && num.length >= 1 && neigh.length >= 2;
+  
+  let val = '';
+  if (isOk) {
+    val = `${street}, ${num} - ${neigh}`;
+    if (comp) {
+      val += ` - ${comp}`;
+    }
+    if (ref) {
+      val += ` (Ref: ${ref})`;
+    }
+  }
+
+  const addrInput = document.getElementById('ck-address');
+  if (addrInput) addrInput.value = val;
+  checkout.address = val;
+
+  localStorage.setItem('marmitaria_addr_street', street);
+  localStorage.setItem('marmitaria_addr_num', num);
+  localStorage.setItem('marmitaria_addr_neigh', neigh);
+  localStorage.setItem('marmitaria_addr_comp', comp);
+  localStorage.setItem('marmitaria_addr_ref', ref);
+  localStorage.setItem('marmitaria_addr_no_comp', document.getElementById('ck-complement').disabled ? '1' : '0');
+  localStorage.setItem('marmitaria_address', val);
+
   refreshCheckoutBtn();
+}
+
+function toggleNoComplement() {
+  const compInput = document.getElementById('ck-complement');
+  const btn = document.getElementById('btn-no-complement');
+  if (compInput.disabled) {
+    compInput.disabled = false;
+    compInput.value = '';
+    btn.textContent = 'Não há complemento';
+    btn.style.color = 'var(--clay)';
+  } else {
+    compInput.disabled = true;
+    compInput.value = 'Sem complemento';
+    btn.textContent = 'Adicionar complemento';
+    btn.style.color = '#888';
+  }
+  onStructuredAddressChange();
 }
 function renderPayGrid(){
   const disc=Number(appCfg.paymentDiscount)||0;
