@@ -2443,8 +2443,27 @@ function generateReceiptHTML(order, cols = 42) {
 <style>
   @page { margin: 0; }
   html, body { margin: 0; padding: 0; width: 100%; background-color: #ffffff; }
-  body { padding: 4mm 2mm; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.35; color: #000000; font-weight: bold; }
-  pre { margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap; word-break: break-all; font-weight: bold; }
+  body { 
+    padding: 4mm 2mm; 
+    font-family: 'Courier New', Courier, monospace; 
+    font-size: 12px; 
+    line-height: 1.35; 
+    color: #000000 !important; 
+    font-weight: 900 !important; 
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    -webkit-font-smoothing: none !important;
+    text-shadow: 0.4px 0 0 #000000, -0.4px 0 0 #000000, 0 0.4px 0 #000000, 0 -0.4px 0 #000000, 0.4px 0.4px 0 #000000, -0.4px -0.4px 0 #000000;
+  }
+  pre { 
+    margin: 0; 
+    font-family: inherit; 
+    font-size: inherit; 
+    white-space: pre-wrap; 
+    word-break: break-all; 
+    font-weight: 900 !important; 
+    color: #000000 !important;
+  }
 </style>
 </head>
 <body>
