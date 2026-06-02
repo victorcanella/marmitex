@@ -1076,7 +1076,7 @@ let cur='s1',busy=false;
 const cart={items:[]};
 const checkout={name:'',phone:'',phoneDigits:'',paymentType:null,observation:'',deliveryType:null,address:localStorage.getItem('marmitaria_address')||''};
 
-const adminSt={tab:'orders',period:'month',filter:'active',orderPeriod:'today',analyticsMonth:null,analyticsYear:null};
+const adminSt={tab:'orders',period:'month',filter:'active',orderPeriod:'today',analyticsMonth:null,analyticsYear:null,ordersMonth:null,ordersYear:null};
 const catSt={key:null,kind:'marmita'};
 const itemSt={key:null,catKey:null,tempIcon:null};
 const promoSt={key:null};
@@ -2051,7 +2051,7 @@ async function loadOrdersTab(){
   customerHistory=buildCustomerHistory(all);
 
   const oPeriod = adminSt.orderPeriod || 'today';
-  const { start, end, label } = getPeriod(oPeriod);
+  const { start, end, label } = getPeriod(oPeriod, adminSt.ordersMonth, adminSt.ordersYear);
   const filteredByPeriod = all.filter(b => b.date >= start && b.date <= end);
   
   console.log('[DEBUG] Todos os pedidos do banco:', all);
@@ -2079,6 +2079,31 @@ async function loadOrdersTab(){
   const chipsHtml='<div class="status-chips">'+chips.map(c=>`<button class="status-chip${filt===c.k?' active':''}" onclick="setOrderFilter('${c.k}')">${c.l} <span class="chip-cnt">${c.c}</span></button>`).join('')+'</div>';
   const summaryBtn=(counts.delivered+counts.confirmed+counts.out_for_delivery+counts.pending)?`<button class="btn-summary" onclick="openDailySummary()">📋 Fechamento de hoje</button>`:'';
 
+  let selectorsHtml = '';
+  if (oPeriod === 'month') {
+    const months = getLast24Months();
+    const selected = adminSt.ordersMonth || toYearMonthKey(new Date());
+    selectorsHtml = `
+      <div class="period-selector-row" style="display:flex;justify-content:center;align-items:center;gap:8px;margin:8px 0 12px">
+        <label for="orders-month-select" style="font-size:12.5px;font-weight:700;color:#666">Mês:</label>
+        <select id="orders-month-select" class="inp" onchange="changeOrdersMonth(this.value)" style="width:auto;min-width:160px;padding:6px 34px 6px 12px;font-size:13px;font-weight:700;border-radius:10px;height:38px;background-color:#fff;border-color:#ddd;margin-bottom:0">
+          ${months.map(m => `<option value="${m.value}" ${m.value === selected ? 'selected' : ''}>${m.label}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  } else if (oPeriod === 'year') {
+    const years = getLast3Years();
+    const selected = Number(adminSt.ordersYear) || new Date().getFullYear();
+    selectorsHtml = `
+      <div class="period-selector-row" style="display:flex;justify-content:center;align-items:center;gap:8px;margin:8px 0 12px">
+        <label for="orders-year-select" style="font-size:12.5px;font-weight:700;color:#666">Ano:</label>
+        <select id="orders-year-select" class="inp" onchange="changeOrdersYear(this.value)" style="width:auto;min-width:120px;padding:6px 34px 6px 12px;font-size:13px;font-weight:700;border-radius:10px;height:38px;background-color:#fff;border-color:#ddd;margin-bottom:0">
+          ${years.map(y => `<option value="${y}" ${y === selected ? 'selected' : ''}>${y}</option>`).join('')}
+        </select>
+      </div>
+    `;
+  }
+
   const periodHtml=`<div class="period-tabs" style="margin-bottom:12px">
     <button class="period-tab${oPeriod==='today'?' active':''}" onclick="setOrderPeriod('today')">Hoje</button>
     <button class="period-tab${oPeriod==='week'?' active':''}" onclick="setOrderPeriod('week')">Semana</button>
@@ -2086,6 +2111,7 @@ async function loadOrdersTab(){
     <button class="period-tab${oPeriod==='year'?' active':''}" onclick="setOrderPeriod('year')">Ano</button>
     <button class="period-tab${oPeriod==='all'?' active':''}" onclick="setOrderPeriod('all')">Todos</button>
   </div>
+  ${selectorsHtml}
   <p style="font-size:11px;color:#aaa;margin-bottom:14px;text-align:center">${label}</p>`;
 
   let filtered;
@@ -2109,6 +2135,8 @@ async function loadOrdersTab(){
 }
 function setOrderFilter(k){adminSt.filter=k;loadOrdersTab();}
 function setOrderPeriod(p){adminSt.orderPeriod=p;loadOrdersTab();}
+function changeOrdersMonth(val){adminSt.ordersMonth=val;loadOrdersTab();}
+function changeOrdersYear(val){adminSt.ordersYear=val;loadOrdersTab();}
 function renderOrderCard(b,today){
   const status=b.status||'pending';
   const cls=status==='delivered'?'delivered-card':status==='confirmed'?'confirmed-card':status==='out_for_delivery'?'outfd-card':status==='cancelled'?'cancelled-card':b.date<=today?'pending-past':'today-card';
@@ -2415,8 +2443,8 @@ function generateReceiptHTML(order, cols = 42) {
 <style>
   @page { margin: 0; }
   html, body { margin: 0; padding: 0; width: 100%; background-color: #ffffff; }
-  body { padding: 4mm 2mm; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.35; color: #000000; }
-  pre { margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap; word-break: break-all; }
+  body { padding: 4mm 2mm; font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.35; color: #000000; font-weight: bold; }
+  pre { margin: 0; font-family: inherit; font-size: inherit; white-space: pre-wrap; word-break: break-all; font-weight: bold; }
 </style>
 </head>
 <body>
