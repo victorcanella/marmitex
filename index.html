@@ -438,6 +438,592 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
   #print-area .pr-it{margin:3px 0;border-bottom:1px dotted #888;padding-bottom:3px}
 }
 #print-area{display:none}
+
+/* Pitch Deck CSS Styles */
+#s-pitch {
+  background: linear-gradient(135deg, #0a0a0c 0%, #121215 100%) !important;
+  color: #e2e8f0;
+  font-family: 'Inter', sans-serif;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+#s-pitch.active {
+  display: flex !important;
+}
+.pitch-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  padding: clamp(10px, 2.5vw, 20px);
+  justify-content: space-between;
+}
+.pitch-slide {
+  display: none;
+  flex-direction: column;
+  flex-grow: 1;
+  animation: fadeInPitch 0.4s ease-in-out forwards;
+  box-sizing: border-box;
+  justify-content: center;
+}
+.pitch-slide.active {
+  display: flex !important;
+}
+@keyframes fadeInPitch {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Slide Styles */
+.pitch-title {
+  font-size: clamp(18px, 3.8vw, 24px);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 8px;
+  line-height: 1.2;
+  background: linear-gradient(to right, #00f0ff, #ff3344);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.pitch-subtitle {
+  font-size: clamp(11px, 2.2vw, 13.5px);
+  text-align: center;
+  color: #94a3b8;
+  margin-top: -6px;
+  margin-bottom: 14px;
+}
+.pitch-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+@media (min-width: 600px) {
+  .pitch-grid-2 {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+/* Card Styles */
+.pitch-card {
+  background: #111115;
+  border: 1px solid #23232c;
+  border-radius: 12px;
+  padding: clamp(10px, 2vw, 16px);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.pitch-card:hover {
+  border-color: #00f0ff;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+}
+.pitch-card.clay-glow:hover {
+  border-color: #ff3344;
+  box-shadow: 0 0 12px rgba(255, 51, 68, 0.25);
+}
+
+/* Checkmarks */
+.pitch-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.pitch-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: clamp(11.5px, 2vw, 13.5px);
+  line-height: 1.35;
+}
+.pitch-check {
+  color: #2ecc71;
+  text-shadow: 0 0 4px rgba(46, 204, 113, 0.6);
+  font-weight: 900;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* Zero Risk Box */
+.pitch-risk-box {
+  background: radial-gradient(circle at top right, rgba(255,51,68,0.08), transparent);
+  border: 2px dashed #ff3344;
+  box-shadow: 0 0 10px rgba(255,51,68,0.12);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 12px;
+  padding: 16px;
+}
+.pitch-risk-badge {
+  background: #ff3344;
+  color: #fff;
+  font-weight: 800;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+  box-shadow: 0 0 6px rgba(255, 51, 68, 0.5);
+}
+.pitch-risk-title {
+  font-size: clamp(14px, 2.5vw, 17px);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.pitch-risk-desc {
+  font-size: 10.5px;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+
+/* Flow/Timeline Steps */
+.pitch-flow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  box-sizing: border-box;
+}
+@media (min-width: 600px) {
+  .pitch-flow {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+}
+.pitch-step {
+  text-align: center;
+  padding: 8px;
+  background: #111115;
+  border: 1px solid #23232c;
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+.pitch-step:hover {
+  border-color: #00f0ff;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+  transform: translateY(-2px);
+}
+.pitch-step-num {
+  font-size: 16px;
+  font-weight: 900;
+  color: #00f0ff;
+  text-shadow: 0 0 5px rgba(0, 240, 255, 0.5);
+  margin-bottom: 2px;
+}
+.pitch-step-title {
+  font-size: clamp(11px, 1.8vw, 12.5px);
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.pitch-step-desc {
+  font-size: 9.5px;
+  color: #94a3b8;
+  line-height: 1.3;
+}
+
+/* Calculadora */
+.pitch-calc-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+@media (min-width: 600px) {
+  .pitch-calc-container {
+    grid-template-columns: 1.1fr 0.9fr;
+  }
+}
+.calc-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.slider-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+.slider-val {
+  color: #00f0ff;
+  text-shadow: 0 0 3px rgba(0, 240, 255, 0.4);
+}
+.pitch-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  border-radius: 3px;
+  background: #23232c;
+  outline: none;
+  margin: 4px 0;
+}
+.pitch-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ff3344;
+  cursor: pointer;
+  box-shadow: 0 0 5px rgba(255, 51, 68, 0.8);
+  transition: transform 0.1s;
+}
+.pitch-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.calc-result-card {
+  background: linear-gradient(145deg, #111115 0%, #151520 100%);
+  border: 2px solid #2ecc71;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.15);
+}
+.result-label {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+}
+.result-value {
+  font-size: clamp(22px, 4.2vw, 30px);
+  font-weight: 900;
+  color: #2ecc71;
+  text-shadow: 0 0 8px rgba(46, 204, 113, 0.5);
+  margin: 4px 0;
+}
+.result-desc {
+  font-size: 10px;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+
+/* Simulator View */
+.pitch-sim-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items: center;
+}
+@media (min-width: 600px) {
+  .pitch-sim-container {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+.sim-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sim-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sim-field label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+.sim-input {
+  background: #18181e;
+  border: 1px solid #2e2e3a;
+  color: #fff;
+  border-radius: 7px;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.sim-input:focus {
+  border-color: #00f0ff;
+}
+
+/* Smartphone Mockup */
+.mockup-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.smartphone {
+  width: 170px;
+  height: 310px;
+  background: #000;
+  border: 6px solid #23232c;
+  border-radius: 20px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.6), 0 0 1px #00f0ff;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.smartphone-screen {
+  flex-grow: 1;
+  background: #0d0d11;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  padding: 6px;
+}
+.mock-app-hdr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3px 0;
+  border-bottom: 1.5px solid #ff3344;
+  margin-bottom: 6px;
+}
+.mock-app-logo {
+  height: 14px;
+}
+.mock-coupon-card {
+  background: #14141a;
+  border: 1px solid #23232c;
+  border-radius: 8px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+.mock-coupon-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  text-align: center;
+  margin-bottom: 1px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mock-coupon-desc {
+  font-size: 8.5px;
+  color: #cbd5e1;
+  line-height: 1.25;
+  text-align: center;
+  height: 28px;
+  overflow: hidden;
+}
+.mock-coupon-prices {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px;
+  margin: 3px 0;
+}
+.mock-coupon-orig {
+  font-size: 8.5px;
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+.mock-coupon-promo {
+  font-size: 12px;
+  font-weight: 800;
+  color: #2ecc71;
+}
+.mock-coupon-btn {
+  background: #ff3344;
+  color: #fff;
+  border: none;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 5px;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 0 5px rgba(255, 51, 68, 0.4);
+  transition: transform 0.1s;
+}
+.mock-coupon-btn:active {
+  transform: scale(0.96);
+}
+
+/* Simulation Flow Overlay */
+.mock-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 12, 0.95);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  z-index: 10;
+  box-sizing: border-box;
+  text-align: center;
+}
+.mock-overlay.active {
+  display: flex !important;
+}
+.mock-overlay-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.mock-overlay-desc {
+  font-size: 9px;
+  color: #cbd5e1;
+  margin-bottom: 8px;
+  line-height: 1.25;
+}
+.mock-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 240, 255, 0.2);
+  border-top-color: #00f0ff;
+  border-radius: 50%;
+  animation: mockSpin 0.8s linear infinite;
+  margin-bottom: 5px;
+}
+@keyframes mockSpin {
+  to { transform: rotate(360deg); }
+}
+.mock-success-code {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 800;
+  background: #1c1c24;
+  border: 1px dashed #2ecc71;
+  color: #2ecc71;
+  padding: 3px 6px;
+  border-radius: 4px;
+  margin: 4px 0;
+  letter-spacing: 1px;
+}
+.mock-timer {
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #ff3344;
+  margin: 3px 0;
+}
+.mock-overlay-btn {
+  background: #23232c;
+  color: #fff;
+  border: 1px solid #3d3d4e;
+  border-radius: 10px;
+  font-size: 8.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+
+/* Slide 5 CTA */
+.pitch-cta-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.pitch-cta-btn {
+  background: linear-gradient(135deg, #ff3344 0%, #ff523b 100%);
+  color: #fff;
+  border: none;
+  font-weight: 800;
+  font-size: clamp(12px, 2.2vw, 14px);
+  padding: 8px 18px;
+  border-radius: 20px;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(255, 51, 68, 0.4);
+  text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.pitch-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(255, 51, 68, 0.65);
+}
+.pitch-cta-btn:active {
+  transform: translateY(0);
+}
+.pitch-whatsapp-btn {
+  background: #2ecc71 !important;
+  box-shadow: 0 0 12px rgba(46, 204, 113, 0.4) !important;
+}
+.pitch-whatsapp-btn:hover {
+  box-shadow: 0 0 18px rgba(46, 204, 113, 0.65) !important;
+}
+
+/* Navigation bar */
+.pitch-nav-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+  margin-top: 8px;
+}
+.pitch-dots {
+  display: flex;
+  gap: 5px;
+}
+.pitch-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #23232c;
+  transition: all 0.25s ease;
+}
+.pitch-dot.active {
+  background: #00f0ff;
+  box-shadow: 0 0 4px rgba(0, 240, 255, 0.8);
+  width: 12px;
+  border-radius: 3px;
+}
+.pitch-next-btn {
+  background: linear-gradient(135deg, #00f0ff 0%, #ff3344 100%);
+  border: none;
+  color: #fff;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+  transition: all 0.2s;
+}
+.pitch-next-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(255, 51, 68, 0.5);
+}
+.pitch-next-btn:active {
+  transform: scale(0.96);
+}
 </style>
 </head>
 <body>
@@ -476,6 +1062,218 @@ select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns
     <div class="cart-bar empty" id="cart-bar" onclick="goCart()">
       <div class="cart-bar-info"><span class="cart-bar-badge" id="cart-bar-qty">0</span><span class="cart-bar-lbl">Ver carrinho</span></div>
       <div class="cart-bar-total" id="cart-bar-total">R$ 0,00</div>
+    </div>
+  </div>
+
+  <!-- S-PITCH — Apresentação Comercial Interativa -->
+  <div id="s-pitch" class="screen">
+    <div class="pitch-container">
+      
+      <!-- SLIDE 1: Proposta de Valor -->
+      <div class="pitch-slide active" data-index="0">
+        <h2 class="pitch-title">Plataforma Restaurante da Clicia</h2>
+        <p class="pitch-subtitle">Mais vendas diretas e menos taxas abusivas de aplicativos</p>
+        
+        <div class="pitch-grid-2">
+          <div class="pitch-card">
+            <ul class="pitch-list">
+              <li><span class="pitch-check">✓</span> <strong>Economia Real:</strong> Fuja da comissão de até 27% dos grandes aplicativos de entrega.</li>
+              <li><span class="pitch-check">✓</span> <strong>Contato Direto:</strong> Fale com seu cliente no WhatsApp e crie um canal de fidelização próprio.</li>
+              <li><span class="pitch-check">✓</span> <strong>Operação Ágil:</strong> Painel de pedidos completo com suporte a impressão térmica automática.</li>
+              <li><span class="pitch-check">✓</span> <strong>Fácil de Usar:</strong> Cardápio interativo e checkout rápido otimizados para celulares e tablets.</li>
+            </ul>
+          </div>
+          
+          <div class="pitch-risk-box">
+            <span class="pitch-risk-badge">Risco Zero</span>
+            <h3 class="pitch-risk-title">Parceria sem Mensalidades</h3>
+            <p class="pitch-risk-desc">Você só paga se vender. Sem mensalidade fixa, sem taxa de adesão e sem fidelidade obrigatória. Nós crescemos junto com seu restaurante.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SLIDE 2: Funcionamento -->
+      <div class="pitch-slide" data-index="1">
+        <h2 class="pitch-title">Como Funciona a Plataforma?</h2>
+        <p class="pitch-subtitle">Um fluxo simples que automatiza sua operação de ponta a ponta</p>
+        
+        <div class="pitch-flow">
+          <div class="pitch-step">
+            <div class="pitch-step-num">1</div>
+            <div class="pitch-step-title">Cardápio</div>
+            <div class="pitch-step-desc">Seus clientes acessam seu link próprio e navegam nos produtos.</div>
+          </div>
+          <div class="pitch-step">
+            <div class="pitch-step-num">2</div>
+            <div class="pitch-step-title">Escolha</div>
+            <div class="pitch-step-desc">O cliente seleciona os itens e insere o endereço formatado.</div>
+          </div>
+          <div class="pitch-step">
+            <div class="pitch-step-num">3</div>
+            <div class="pitch-step-title">Painel</div>
+            <div class="pitch-step-desc">Você recebe o pedido instantaneamente no painel administrativo.</div>
+          </div>
+          <div class="pitch-step">
+            <div class="pitch-step-num">4</div>
+            <div class="pitch-step-title">Impressão</div>
+            <div class="pitch-step-desc">Gere cupons em negrito para impressoras térmicas em 1 clique.</div>
+          </div>
+          <div class="pitch-step">
+            <div class="pitch-step-num">5</div>
+            <div class="pitch-step-title">WhatsApp</div>
+            <div class="pitch-step-desc">As atualizações são enviadas diretamente ao WhatsApp do cliente.</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SLIDE 3: ROI Calculator -->
+      <div class="pitch-slide" data-index="2">
+        <h2 class="pitch-title">Simule o Retorno Financeiro</h2>
+        <p class="pitch-subtitle">Veja quanta taxa você economiza ao receber pedidos diretamente</p>
+        
+        <div class="pitch-calc-container">
+          <div class="calc-controls">
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Ticket Médio (R$)</span>
+                <span class="slider-val">R$ <span id="val-ticket">25</span></span>
+              </div>
+              <input type="range" id="slide-ticket" class="pitch-slider" min="15" max="60" value="25" oninput="updateROI()">
+            </div>
+            
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Pedidos por Mês</span>
+                <span class="slider-val"><span id="val-volume">500</span></span>
+              </div>
+              <input type="range" id="slide-volume" class="pitch-slider" min="100" max="2000" step="50" value="500" oninput="updateROI()">
+            </div>
+            
+            <div class="slider-group">
+              <div class="slider-header">
+                <span>Taxa do App Concorrente (%)</span>
+                <span class="slider-val"><span id="val-fee">20</span>%</span>
+              </div>
+              <input type="range" id="slide-fee" class="pitch-slider" min="10" max="25" value="20" oninput="updateROI()">
+            </div>
+          </div>
+          
+          <div class="calc-result-card">
+            <div class="result-label">Economia Estimada por Mês</div>
+            <div class="result-value">R$ <span id="roi-saving">2.500,00</span></div>
+            <p class="result-desc">Dinheiro que volta para o seu caixa ao invés de virar taxas de intermediação corporativas.</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SLIDE 4: Simulator -->
+      <div class="pitch-slide" data-index="3">
+        <h2 class="pitch-title">Simulação de Ofertas no App</h2>
+        <p class="pitch-subtitle">Crie uma oferta à esquerda e veja a prévia em tempo real no mockup do celular</p>
+        
+        <div class="pitch-sim-container">
+          <div class="sim-controls">
+            <div class="sim-field">
+              <label>Nome do Produto</label>
+              <input type="text" id="sim-title-in" class="sim-input" value="Marmitex Executivo M" oninput="updateMockup()">
+            </div>
+            <div class="sim-field">
+              <label>Descrição do Produto</label>
+              <input type="text" id="sim-desc-in" class="sim-input" value="Arroz, feijão, fritas, salada e grelhado bovino suculento." oninput="updateMockup()">
+            </div>
+            <div class="sim-field">
+              <label>Preço Original (R$)</label>
+              <input type="number" id="sim-orig-in" class="sim-input" value="26.00" step="0.5" oninput="updateMockup()">
+            </div>
+            <div class="sim-field">
+              <label>Preço Promocional (R$)</label>
+              <input type="number" id="sim-promo-in" class="sim-input" value="19.90" step="0.5" oninput="updateMockup()">
+            </div>
+          </div>
+          
+          <div class="mockup-wrapper">
+            <div class="smartphone">
+              <div class="smartphone-screen">
+                <div class="mock-app-hdr">
+                  <span style="font-size:10px;font-weight:900;color:#fff;letter-spacing:0.5px">RESTAURANTE DA CLICIA</span>
+                </div>
+                
+                <div class="mock-coupon-card">
+                  <div>
+                    <div class="mock-coupon-title" id="mock-title">Marmitex Executivo M</div>
+                    <p class="mock-coupon-desc" id="mock-desc">Arroz, feijão, fritas, salada e grelhado bovino suculento.</p>
+                  </div>
+                  <div>
+                    <div class="mock-coupon-prices">
+                      <span class="mock-coupon-orig" id="mock-orig">R$ 26,00</span>
+                      <span class="mock-coupon-promo" id="mock-promo">R$ 19,90</span>
+                    </div>
+                    <button class="mock-coupon-btn" style="width:100%" onclick="triggerMockRedeem()">Resgatar Desconto</button>
+                  </div>
+                </div>
+                
+                <!-- Mockup Interative Overlay Flow -->
+                <div class="mock-overlay" id="mock-overlay">
+                  <!-- State 1: Confirm -->
+                  <div id="mock-ov-confirm">
+                    <div class="mock-overlay-title">Confirmar Resgate</div>
+                    <p class="mock-overlay-desc">Deseja reservar este desconto exclusivo agora?</p>
+                    <div style="display:flex;gap:5px;justify-content:center">
+                      <button class="mock-overlay-btn" onclick="cancelMockOverlay()" style="background:#444">Voltar</button>
+                      <button class="mock-overlay-btn" onclick="startMockLoading()" style="background:#ff3344">Reservar</button>
+                    </div>
+                  </div>
+                  
+                  <!-- State 2: Loading -->
+                  <div id="mock-ov-loading" style="display:none">
+                    <div class="mock-spinner" style="margin: 0 auto 8px"></div>
+                    <div class="mock-overlay-title">Reservando seu cupom...</div>
+                  </div>
+                  
+                  <!-- State 3: Success -->
+                  <div id="mock-ov-success" style="display:none">
+                    <span style="font-size:22px">🎉</span>
+                    <div class="mock-overlay-title" style="color:#2ecc71;margin-top:4px">Resgatado com sucesso!</div>
+                    <p class="mock-overlay-desc" style="margin-bottom:4px">Apresente o código no caixa:</p>
+                    <div class="mock-success-code" id="mock-code">CLICIA-48F7</div>
+                    <p class="mock-overlay-desc" style="margin-bottom:2px">Expira em:</p>
+                    <div class="mock-timer" id="mock-timer">24:00:00</div>
+                    <button class="mock-overlay-btn" onclick="cancelMockOverlay()" style="margin-top:6px">Fechar</button>
+                  </div>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SLIDE 5: CTA / Parceria -->
+      <div class="pitch-slide" data-index="4">
+        <h2 class="pitch-title">Vamos Crescer Juntos?</h2>
+        <p class="pitch-subtitle">Faça o seu cadastro agora e comece a vender sem taxas ocultas</p>
+        
+        <div class="pitch-cta-card">
+          <div class="pitch-card clay-glow" style="margin-bottom:6px">
+            <p style="font-size:12.5px;color:#cbd5e1;line-height:1.45;margin:0">Cadastre-se na nossa plataforma e receba suporte na implantação da sua marca, montagem do cardápio digital e integração de impressoras térmicas para otimizar sua produção.</p>
+          </div>
+          <a class="pitch-cta-btn pitch-whatsapp-btn" href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20a%20parceria%20com%20o%20Restaurante%20da%20Clicia" target="_blank" rel="noopener">💬 Falar com o Consultor</a>
+          <a class="pitch-cta-btn" href="#" onclick="alert('Formulário de Contrato enviado com sucesso (Simulação)');return false;" style="margin-top:6px">📝 Assinar Termo de Parceria</a>
+        </div>
+      </div>
+      
+      <!-- FOOTER NAVIGATION BAR -->
+      <div class="pitch-nav-row">
+        <div class="pitch-dots">
+          <span class="pitch-dot active" data-index="0"></span>
+          <span class="pitch-dot" data-index="1"></span>
+          <span class="pitch-dot" data-index="2"></span>
+          <span class="pitch-dot" data-index="3"></span>
+          <span class="pitch-dot" data-index="4"></span>
+        </div>
+        <button class="pitch-next-btn" id="pitch-next" onclick="nextPitchSlide()">➔</button>
+      </div>
+      
     </div>
   </div>
 
@@ -3343,7 +4141,7 @@ function toast(msg){
 
 // ════ AUTH UI ════
 function showScreen(id){
-  ['s1','s-login','s-cart','s-checkout','s-review','s-ok','s-admin'].forEach(s=>{
+  ['s1','s-login','s-cart','s-checkout','s-review','s-ok','s-admin','s-pitch'].forEach(s=>{
     const el=document.getElementById(s);if(el)el.classList.remove('active');
   });
   const target=document.getElementById(id);if(target)target.classList.add('active');
@@ -3491,8 +4289,160 @@ function stopOrdersListener(){
   if(_ordersListenerUnsub){try{_ordersListenerUnsub();}catch(e){}_ordersListenerUnsub=null;}
 }
 
+// Pitch Deck State and Logic
+let currentPitchSlide = 0;
+const totalPitchSlides = 5;
+let mockTimerInterval = null;
+
+function handleHashRoute() {
+  if (location.hash === '#apresentacaomarmitex') {
+    showScreen('s-pitch');
+    initPitchDeck();
+  } else {
+    if (cur === 's-pitch') {
+      location.reload();
+    }
+  }
+}
+
+function initPitchDeck() {
+  currentPitchSlide = 0;
+  showPitchSlide(0);
+  updateROI();
+  updateMockup();
+}
+
+function showPitchSlide(index) {
+  currentPitchSlide = index;
+  const slides = document.querySelectorAll('.pitch-slide');
+  slides.forEach((slide, idx) => {
+    if (idx === index) {
+      slide.classList.add('active');
+    } else {
+      slide.classList.remove('active');
+    }
+  });
+  
+  const dots = document.querySelectorAll('.pitch-dot');
+  dots.forEach((dot, idx) => {
+    if (idx === index) {
+      dot.classList.add('active');
+    } else {
+      dot.classList.remove('active');
+    }
+  });
+  
+  const nextBtn = document.getElementById('pitch-next');
+  if (index === totalPitchSlides - 1) {
+    nextBtn.style.display = 'none';
+  } else {
+    nextBtn.style.display = 'flex';
+  }
+}
+
+function nextPitchSlide() {
+  if (currentPitchSlide < totalPitchSlides - 1) {
+    showPitchSlide(currentPitchSlide + 1);
+  }
+}
+
+// Bind clicks on dots to slide navigation
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('pitch-dot')) {
+    const idx = parseInt(e.target.getAttribute('data-index'));
+    if (!isNaN(idx)) {
+      showPitchSlide(idx);
+    }
+  }
+});
+
+// ROI Calculator Logic
+function updateROI() {
+  const ticket = parseFloat(document.getElementById('slide-ticket').value);
+  const volume = parseInt(document.getElementById('slide-volume').value);
+  const fee = parseFloat(document.getElementById('slide-fee').value);
+  
+  document.getElementById('val-ticket').textContent = ticket.toFixed(0);
+  document.getElementById('val-volume').textContent = volume;
+  document.getElementById('val-fee').textContent = fee.toFixed(0);
+  
+  const economy = ticket * volume * (fee / 100);
+  document.getElementById('roi-saving').textContent = fmt(economy);
+}
+
+// App Simulator Logic
+function updateMockup() {
+  const title = document.getElementById('sim-title-in').value || 'Marmitex Executivo M';
+  const desc = document.getElementById('sim-desc-in').value || '';
+  const origPrice = parseFloat(document.getElementById('sim-orig-in').value) || 0;
+  const promoPrice = parseFloat(document.getElementById('sim-promo-in').value) || 0;
+  
+  document.getElementById('mock-title').textContent = title;
+  document.getElementById('mock-desc').textContent = desc;
+  document.getElementById('mock-orig').textContent = 'R$ ' + fmt(origPrice);
+  document.getElementById('mock-promo').textContent = 'R$ ' + fmt(promoPrice);
+}
+
+// Interactive Mockup Overlay
+function triggerMockRedeem() {
+  const overlay = document.getElementById('mock-overlay');
+  overlay.classList.add('active');
+  document.getElementById('mock-ov-confirm').style.display = 'block';
+  document.getElementById('mock-ov-loading').style.display = 'none';
+  document.getElementById('mock-ov-success').style.display = 'none';
+}
+
+function cancelMockOverlay() {
+  const overlay = document.getElementById('mock-overlay');
+  overlay.classList.remove('active');
+  if (mockTimerInterval) {
+    clearInterval(mockTimerInterval);
+    mockTimerInterval = null;
+  }
+}
+
+function startMockLoading() {
+  document.getElementById('mock-ov-confirm').style.display = 'none';
+  document.getElementById('mock-ov-loading').style.display = 'block';
+  
+  setTimeout(() => {
+    showMockSuccess();
+  }, 1000);
+}
+
+function showMockSuccess() {
+  document.getElementById('mock-ov-loading').style.display = 'none';
+  document.getElementById('mock-ov-success').style.display = 'block';
+  
+  const code = 'CLICIA-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+  document.getElementById('mock-code').textContent = code;
+  
+  let seconds = 24 * 60 * 60;
+  const timerEl = document.getElementById('mock-timer');
+  
+  if (mockTimerInterval) clearInterval(mockTimerInterval);
+  
+  mockTimerInterval = setInterval(() => {
+    seconds--;
+    if (seconds <= 0) {
+      clearInterval(mockTimerInterval);
+      timerEl.textContent = 'EXPIRADO';
+      return;
+    }
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    timerEl.textContent = `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+  }, 1000);
+}
+
 // ════ INIT ════
 async function init(){
+  window.addEventListener('hashchange', handleHashRoute);
+  if (location.hash === '#apresentacaomarmitex') {
+    handleHashRoute();
+    return;
+  }
   FB_OK=await waitForFirebase();
   if(!FB_OK){
     document.getElementById('cfg-warn').classList.add('show');
